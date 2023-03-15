@@ -1,0 +1,16 @@
+@tailwind base;
+
+@tailwind components;
+
+@layer utilities {
+    .warning {
+      font-weight: 300;
+      color: red;
+      text-align: center;
+    }
+    button {
+      cursor: pointer;
+    }
+  }
+  
+@tailwind utilities;
