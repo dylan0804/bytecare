@@ -5,11 +5,28 @@ import { collection, query, where, getDocs } from 'firebase/firestore'
 
 export default createStore({
   state: {
+    // user credentials
     user: null,
     profileId: null,
     profileFirstName: null,
     profileLastName: null,
     profileEmail: null,
+
+    //repair step-1
+    serviceType: '',
+    phoneNumber: null,
+    city: '',
+    address: '',
+    district: '',
+    postalCode: null,
+    pickupDate: null,
+    pickupTime: null,
+    additionalInfo: '',
+
+    //repair step-2
+    deviceType: '',
+    operatingSystem: '',
+    problem: ''
   },
   getters: {
   },
@@ -28,6 +45,25 @@ export default createStore({
       console.log(state.profileFirstName)
       console.log(state.profileLastName)
       console.log(state.profileEmail)
+    },
+
+    //get contact info
+    getContactInfo(state, payload) {
+      state.phoneNumber = payload.phoneNumber,
+      state.city = payload.city,
+      state.address = payload.address
+      state.district = payload.district,
+      state.postalCode = payload.postalCode,
+      state.additionalInfo = payload.desc
+    },
+
+    getProblemInfo(state, payload) {
+      state.operatingSystem = payload.operatingSystem
+      state.deviceType = payload.deviceType
+      state.problem = payload.problem
+      state.pickupDate = payload.date1,
+      state.pickupTime = payload.date2,
+      state.serviceType = payload.repairType
     }
   },
   actions: {

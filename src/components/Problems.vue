@@ -20,22 +20,57 @@
   :size="formSize"
   status-icon
 >
+
+<el-form-item label="Service Options" prop="repairType">
+      <el-radio-group v-model="ruleForm.repairType">
+        <el-radio label="Pick up and repair at our office" />
+        <el-radio label="Repair at your house" />
+      </el-radio-group>
+    </el-form-item>
   <el-form-item label="Device Type" prop="deviceType">
     <el-radio-group v-model="ruleForm.deviceType">
       <el-radio label="Desktop" />
       <el-radio label="Laptop" />
     </el-radio-group>
   </el-form-item>
-  <el-form-item label="Operating System" prop="OS">
-    <el-select v-model="ruleForm.OS" placeholder="Select your operating system">
+  <el-form-item label="Operating System" prop="operatingSystem">
+    <el-select v-model="ruleForm.operatingSystem" placeholder="Select your operating system">
       <el-option label="Windows" value="Windows" />
       <el-option label="macOS" value="macOS" />
       <el-option label="Linux" value="Linux" />
     </el-select>
   </el-form-item>
+  <el-form-item v-if="ruleForm.repairType === 'Pick up and repair at our office'" label="Pickup time" required>
+      <el-col :span="11">
+        <el-form-item prop="date1">
+          <el-date-picker
+            v-model="ruleForm.date1"
+            type="date"
+            label="Pick a date"
+            placeholder="Pick a date"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-col>
+      <el-col class="text-center" :span="2">
+        <span class="text-gray-500">-</span>
+      </el-col>
+      <el-col :span="11">
+        <el-form-item prop="date2">
+          <el-time-select
+            v-model="ruleForm.date2"
+            start="10:00"
+            step="00:15"
+            end="17:00"
+            placeholder="Pick a time"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-col>
+    </el-form-item>
   <el-form-item label="Describe your problem" prop="problem">
-    <el-input maxlength="100" show-word-limit v-model="ruleForm.problem" type="textarea" clearable/>
-  </el-form-item>
+      <el-input maxlength="100" show-word-limit v-model="ruleForm.problem" type="textarea" />
+    </el-form-item>
   <div class="flex justify-center mt-10">
       <el-button @click="goBack()">Back</el-button>
       <el-button class="bg-blue-500 px-6" type="primary" @click="submitForm(ruleFormRef)">Next</el-button>
@@ -47,7 +82,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, watchEffect } from 'vue'
+import { reactive, ref } from 'vue'
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
@@ -58,50 +93,57 @@ const router = useRouter();
 const store = useStore();
 
 const ruleForm = reactive({
-  firstName: '',
-  lastName: '',
-  email: '',
-  phoneNumber: null,
-  city: '',
-  address: '',
-  district:'',
-  postalCode: null,
-  count: '',
-  date1: '',
-  date2: '',
-  delivery: false,
-  type: [],
-  resource: '',
-  problem: '',
-  deviceType: '',
-  OS: '',
+  deviceType: store.state.deviceType,
+  operatingSystem: store.state.operatingSystem,
+  problem: store.state.problem,
+  date1: store.state.pickupDate,
+  date2: store.state.pickupTime,
+  repairType: store.state.serviceType
 })
 
 const rules = reactive({
+  repairType: [
+    {
+      required: true,
+      message: 'Please select the service options',
+    },
+  ],
   deviceType: [
   {
     required: true,
     message: 'Please select your device type',
-    trigger: 'blur',
   },
 ],
-OS: [
-  {
-    required: true,
-    message: 'Please select your operating system',
-    trigger: 'change',
-  },
-],
-problem: [
-  { required: true, message: 'Please describe your problem', trigger: 'blur' },
-],
-})
+  operatingSystem: [
+    {
+      required: true,
+      message: 'Please select your operating system',
+    },
+  ],
+  date1: [
+    {
+      type: 'date',
+      required: true,
+      message: 'Please pick a date',
+    },
+  ],
+  date2: [
+    {
+      required: true,
+      message: 'Please pick a time',
+    },
+  ],
+  problem: [
+    { required: true, message: 'Please describe your problem' },
+  ],
+  })
 
 const submitForm = async (formEl) => {
 if (!formEl) return
 await formEl.validate((valid, fields) => {
   if (valid) {
     console.log('submit!')
+    store.commit("getProblemInfo", ruleForm)
     router.push({ name: 'Summary' })
   } else {
     console.log('error submit!', fields)

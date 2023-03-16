@@ -8,7 +8,6 @@
 
 <script setup>
 import Navigation from './components/Navigation.vue';
-import Navigation2 from './components/Navigation2.vue';
 import Footer from './components/Footer.vue';
 import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'

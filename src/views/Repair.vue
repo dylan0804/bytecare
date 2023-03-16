@@ -1,6 +1,6 @@
 <template>
     <div class="container mx-auto p-6 py-20">
-        <div class="flex border-2 rounded-xl shadow-md p-6 md:p-10 flex-col mx-auto space-y-10 md:w-3/4 w-full">
+        <div class="flex border-2 rounded-xl shadow-lg p-6 md:p-10 flex-col mx-auto space-y-10 md:w-3/4 w-full">
             <div>
                 <el-steps :active="0" align-center>
                     <el-step title="Contact Information" />
@@ -20,25 +20,23 @@
     :size="formSize"
     status-icon
   >
-    <el-form-item label="Service Options" prop="repairType">
-      <el-radio-group v-model="ruleForm.repairType">
-        <el-radio label="Pick up and repair at our office" />
-        <el-radio label="Repair at your house" />
-      </el-radio-group>
-    </el-form-item>
 
-    <el-form-item label="First Name" prop="firstName">
+    <div class="flex items-center justify-between space-x-6 flex-1">
+      <el-form-item class="w-full" label="First Name" prop="firstName">
       <el-input v-model="ruleForm.firstName" clearable />
     </el-form-item>
-    <el-form-item label="Last Name" prop="lastName">
+    <el-form-item class="w-full" label="Last Name" prop="lastName">
       <el-input v-model="ruleForm.lastName" clearable />
     </el-form-item>
-    <el-form-item label="Email" prop="lastName">
-      <el-input v-model="ruleForm.email" clearable />
-    </el-form-item>
-    <el-form-item label="Phone Number" prop="phoneNumber">
-      <el-input v-model.number="ruleForm.phoneNumber" type="text" clearable/>
-    </el-form-item>
+    </div>
+      <div class="flex items-center justify-between space-x-6 flex-1">
+        <el-form-item class="w-full" label="Email" prop="email">
+          <el-input v-model="ruleForm.email" clearable />
+        </el-form-item>
+        <el-form-item class="w-full" label="Phone Number" prop="phoneNumber">
+          <el-input v-model="ruleForm.phoneNumber" type="text" clearable/>
+        </el-form-item>
+      </div>
     <el-form-item label="City" prop="city">
       <el-select v-model="ruleForm.city" placeholder="Please select your city">
         <el-option label="Jakarta" value="Jakarta" />
@@ -52,45 +50,17 @@
       <el-input v-model="ruleForm.address" clearable />
     </el-form-item>
     <el-form-item required>
-      <el-col :span="11">
+      <el-col :span="12">
         <el-form-item label="District" prop="district">
           <el-input v-model="ruleForm.district" placeholder="Jakarta Barat" clearable />
         </el-form-item>
       </el-col>
-      <el-col class="text-center mt-8" :span="2">
+      <el-col class="text-center mt-8" :span="1">
         <span class="text-gray-500">-</span>
       </el-col>
       <el-col :span="11">
-        <el-form-item label="Postal Code" prop="postalCode">
+        <el-form-item  label="Postal Code" prop="postalCode">
           <el-input v-model.number="ruleForm.postalCode" placeholder="11210" clearable />
-        </el-form-item>
-      </el-col>
-    </el-form-item>
-    <el-form-item v-if="ruleForm.repairType === 'Pick up and repair at our office'" label="Pickup time" required>
-      <el-col :span="11">
-        <el-form-item prop="date1">
-          <el-date-picker
-            v-model="ruleForm.date1"
-            type="date"
-            label="Pick a date"
-            placeholder="Pick a date"
-            style="width: 100%"
-          />
-        </el-form-item>
-      </el-col>
-      <el-col class="text-center" :span="2">
-        <span class="text-gray-500">-</span>
-      </el-col>
-      <el-col :span="11">
-        <el-form-item prop="date2">
-          <el-time-select
-            v-model="ruleForm.date2"
-            start="10:00"
-            step="00:15"
-            end="17:00"
-            placeholder="Pick a time"
-            style="width: 100%"
-          />
         </el-form-item>
       </el-col>
     </el-form-item>
@@ -122,19 +92,12 @@ const ruleForm = reactive({
   firstName: '',
   lastName: '',
   email: '',
-  phoneNumber: null,
-  city: '',
-  address: '',
-  district:'',
-  postalCode: null,
-  // count: '',
-  // date1: '',
-  // date2: '',
-  // delivery: false,
-  // type: [],
-  // resource: '',
-  // desc: '',
-  repairType: ''
+  phoneNumber: store.state.phoneNumber,
+  city: store.state.city,
+  address: store.state.address,
+  district: store.state.district,
+  postalCode: store.state.postalCode,
+  desc: store.state.additionalInfo,
 })
 
 watchEffect(() => {
@@ -143,18 +106,31 @@ watchEffect(() => {
     ruleForm.lastName = store.state.profileLastName
 })
 
+const validatePhone = (rule, value, callback) => {
+  if (value === '') {
+    callback(new Error('Please input your phone number'));
+  } else if (isNaN(value)) {
+    callback(new Error('Phone number must be a number'));
+  } else {
+    callback();
+  }
+};
+
 const rules = reactive({
   firstName: [
-    { required: true, message: 'Please input First Name', trigger: 'blur' },
-    { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
+    { required: true, message: 'Please input your first name'},
+    { min: 3, message: 'First name must be longer than 3 characters'},
   ],
   lastName: [
-    { required: true, message: 'Please input Last Name', trigger: 'blur' },
-    { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
+    { required: true, message: 'Please input last name'},
+    { min: 3, message: 'Last name must be longer than 3 characters'},
+  ],
+  email: [
+    { required: true, message: 'Please input your email'},
   ],
   phoneNumber: [
-    { type:'number', required: true, message: 'Phone Number must be a number'},
-    { type:'number', required: true, message: 'Please input Phone Number', trigger: 'blur' },
+    { validator: validatePhone, required: true},
+    { required: true, message: 'Please input your phone number'},
   ],
   city: [
     {
@@ -164,39 +140,18 @@ const rules = reactive({
     },
   ],
   address: [
-    { required: true, message: 'Please input your address', trigger: 'blur' },
+    { required: true, message: 'Please input your address'},
   ],
   district: [
-    { required: true, message: 'Please input District', trigger: 'blur' },
+    { required: true, message: 'Please input District'},
   ],
   postalCode: [
     { type:'number', required: true, message: 'Postal Code must be a number'},
-    { type:'number', required: true, message: 'Please input Phone Number', trigger: 'blur' },
+    { type:'number', required: true, message: 'Please input Phone Number'},
   ],
-  date1: [
-    {
-      type: 'date',
-      required: true,
-      message: 'Please pick a date',
-      trigger: 'change',
-    },
-  ],
-  date2: [
-    {
-      required: true,
-      message: 'Please pick a time',
-      trigger: 'change',
-    },
-  ],
-  repairType: [
-    {
-      required: true,
-      message: 'Please select the service options',
-      trigger: 'blur',
-    },
-  ],
+ 
   // desc: [
-  //   { required: true, message: 'Please input activity form', trigger: 'blur' },
+  //   { required: true, message: 'Please input activity form'},
   // ],
 })
 
@@ -205,6 +160,7 @@ const submitForm = async (formEl) => {
   await formEl.validate((valid, fields) => {
     if (valid) {
       console.log('submit!')
+      store.commit("getContactInfo", ruleForm)
       router.push({ name: 'Problems' })
     } else {
       console.log('error submit!', fields)

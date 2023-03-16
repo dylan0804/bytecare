@@ -38,7 +38,12 @@
               </div>
               <div v-show="isLoggedIn">
                 <el-dropdown :hide-on-click="false">
-                    <el-avatar class="text-2xl bg-[#454545] outline-none hover:outline-dashed" :size="50">{{ userInitials }}</el-avatar>
+                    <el-skeleton v-if="!store.state.profileFirstName" class=" outline-none" style="--el-skeleton-circle-size: 50px" animated>
+                        <template #template>
+                        <el-skeleton-item variant="circle"/>
+                        </template>
+                    </el-skeleton>
+                    <el-avatar v-if="store.state.profileLastName" class="text-2xl bg-[#454545] outline-none hover:outline-dashed" :size="50">{{ userInitials }}</el-avatar>
                     <template #dropdown>
                         <el-dropdown-menu class="flex flex-col space-y-3 p-4 font-medium text-sm">
                             <div class="flex items-center space-x-4">
@@ -52,6 +57,24 @@
                             </div>
                             <hr>
                             <div class="flex flex-col space-y-3 justify-start">
+                                <el-dropdown-item @click="router.push({ name: 'Repair' })">
+                                    <router-link class="flex space-x-1 items-center" to="#">
+                                        <i class="fa-solid fa-user"></i>
+                                        <p>My profile</p>
+                                    </router-link>
+                                </el-dropdown-item>
+                                <el-dropdown-item @click="router.push({ name: 'Repair' })" divided>
+                                    <router-link class="flex space-x-1 items-center" to="#">
+                                        <i class="fa-solid fa-wrench"></i>
+                                        <p>Repair</p>
+                                    </router-link>
+                                </el-dropdown-item>
+                                <el-dropdown-item>
+                                    <router-link class="flex space-x-1 items-center" to="#">
+                                        <i class="fa-solid fa-shop"></i>
+                                        <p>Shop</p>
+                                    </router-link>
+                                </el-dropdown-item>
                                 <el-dropdown-item>
                                     <router-link class="flex space-x-1 items-center" to="#">
                                         <i class="fa-solid fa-cart-shopping"></i>
@@ -84,11 +107,13 @@ import { useStore } from 'vuex';
 import { onMounted, ref, watchEffect } from 'vue';
 import { auth } from '@/firebase/firebaseInit';
 import { signOut } from '@firebase/auth';
+import { useRouter } from 'vue-router';
 
 //variables
 const store = useStore();
 const userInitials = ref("");
 const isLoggedIn = ref(null)
+const router = useRouter();
 
 const signOutUser = async () => {
     try {
