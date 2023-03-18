@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto p-6 py-20">
-      <div class="flex border-2 rounded-xl shadow-md p-6 md:p-10 flex-col mx-auto space-y-10 md:w-3/4 w-full">
+      <div class="flex border-2 rounded-xl shadow-md p-6 md:p-10 flex-col mx-auto space-y-10 md:w-3/4 w-full bg-white">
           <div>
               <el-steps :active="2" align-center>
                   <el-step title="Contact Information" />
@@ -12,12 +12,15 @@
 
           <!-- contact information -->
           <div class="p-5 border-2 border-dashed border-gray-300 rounded-lg" >
-            <div class="flex justify-between">
+            <div class="flex justify-between items-center">
               <h1 class="text-md">Contact Information</h1>
-              <p @click="disableFormOne" class="text-blue-500 hover:cursor-pointer">Edit</p>
+              <p @click="disableFormOne" class="text-blue-500 hover:cursor-pointer ml-auto mr-3">Edit</p>
+              <i v-show="!hideOne" @click="hideFormOne" class="fa-solid fa-chevron-up"></i>
+              <i v-show="hideOne" @click="hideFormOne" class="fa-solid fa-chevron-down"></i>
             </div>
             <el-divider />
             <el-form
+    v-show="!hideOne"
     ref="ruleFormRefOne"
     :model="ruleForm"
     :rules="rules"
@@ -67,8 +70,8 @@
         <span class="text-gray-500">-</span>
       </el-col>
       <el-col :span="11">
-        <el-form-item  label="Postal Code" prop="postalCode">
-          <el-input v-model.number="ruleForm.postalCode" placeholder="11210" clearable />
+        <el-form-item label="Postal Code" prop="postalCode">
+          <el-input v-model="ruleForm.postalCode" placeholder="11210" clearable />
         </el-form-item>
       </el-col>
     </el-form-item>
@@ -80,12 +83,15 @@
 
           <!-- problem description -->
           <div class="p-5 border-2 border-dashed border-gray-300 rounded-lg" >
-            <div class="flex justify-between">
+            <div class="flex justify-between items-center">
               <h1 class="text-md">Problem Description</h1>
-              <p @click="disableFormTwo" class="text-blue-500 hover:cursor-pointer">Edit</p>
+              <p @click="disableFormTwo" class="text-blue-500 hover:cursor-pointer ml-auto mr-3">Edit</p>
+              <i v-show="!hideTwo" @click="hideFormTwo" class="fa-solid fa-chevron-up"></i>
+              <i v-show="hideTwo" @click="hideFormTwo" class="fa-solid fa-chevron-down"></i>
             </div>
             <el-divider />
             <el-form
+  v-show="!hideTwo"
   ref="ruleFormRefTwo"
   :model="ruleForm"
   :rules="rules"
@@ -116,12 +122,13 @@
       <el-option label="Linux" value="Linux" />
     </el-select>
   </el-form-item>
-  <el-form-item v-if="ruleForm.repairType === 'Pick up and repair at our office'" label="Pickup time" required>
+  <el-form-item label="Schedule the pickup time" required>
       <el-col :span="11">
         <el-form-item prop="date1">
           <el-date-picker
             v-model="ruleForm.date1"
             type="date"
+            :disabled-date="disabledDate"
             label="Pick a date"
             placeholder="Pick a date"
             style="width: 100%"
@@ -160,7 +167,7 @@
   <el-dialog
     v-model="centerDialogVisible"
     v-loading="loading"
-    width="30%"
+    width="800px"
     :before-close="handleClose"
     align-center
     center
@@ -171,8 +178,8 @@
         sub-title="You can view your order details in your profile page"
       >
         <template #extra>
-          <el-button v-loading.fullscreen.lock="fullscreenLoading" @click="addOrder">Return to Home</el-button>
-          <el-button class="bg-blue-500 px-6" v-loading.fullscreen.lock="fullscreenLoading" @click="addOrder" type="primary">View Profile</el-button>
+          <el-button v-loading.fullscreen.lock="fullscreenLoading" @click="addOrder('Home')">Return to Home</el-button>
+          <el-button class="bg-blue-500 px-6" v-loading.fullscreen.lock="fullscreenLoading" @click="addOrder('Profile')" type="primary">View Order History</el-button>
         </template>
       </el-result>
   </el-dialog>
@@ -185,16 +192,19 @@ import { useRouter } from 'vue-router';
 import firebase from '../firebase/firebaseInit'
 import db from '../firebase/firebaseInit';
 import { addDoc, collection, getDocs, query, where } from '@firebase/firestore';
-
+import { v4 as uuidv4 } from 'uuid'
 
 const formSize = ref('large')
 const labelPosition = ref('top')
 const ruleFormRefOne = ref()
 const ruleFormRefTwo = ref()
+const currentDate = new Date()
 const isDisabledOne = ref(true)
 const isDisabledTwo = ref(true)
 const centerDialogVisible = ref(false)
 const fullscreenLoading = ref(false)
+const hideOne = ref(true);
+const hideTwo = ref(true)
 const router = useRouter();
 const store = useStore();
 
@@ -230,6 +240,16 @@ const validatePhone = (rule, value, callback) => {
     callback(new Error('Please input your phone number'));
   } else if (isNaN(value)) {
     callback(new Error('Phone number must be a number'));
+  } else {
+    callback();
+  }
+};
+
+const validatePostalCode = (rule, value, callback) => {
+  if (value === '') {
+    callback(new Error('Please input your postal code'));
+  } else if (isNaN(value)) {
+    callback(new Error('Postal code must be a number'));
   } else {
     callback();
   }
@@ -283,6 +303,10 @@ const checkFormTwo = (formEl) => {
   })
 }
 
+const disabledDate = (time) => {
+  return time.getTime() < Date.now();
+};
+
 const submitForm = async (ruleFormRefOne, ruleFormRefTwo) => {
   const isFormOneCorrect = await checkFormOne(ruleFormRefOne)
   const isFormTwoCorrect = await checkFormTwo(ruleFormRefTwo)
@@ -291,12 +315,18 @@ const submitForm = async (ruleFormRefOne, ruleFormRefTwo) => {
 
   if(isFormOneCorrect && isFormTwoCorrect) {
     store.commit("getContactInfo", ruleForm)
-    store.commit("getProblemInfi", ruleForm)
+    store.commit("getProblemInfo", ruleForm)
     centerDialogVisible.value = true
   }
 }
 
-const addOrder = async () => {
+const getDate = (date) => {
+  const dateObj = new Date(date);
+  const options = { month: 'long', day: 'numeric', year: 'numeric' };
+  return dateObj.toLocaleDateString('en-US', options);
+}
+
+const addOrder = async (route) => {
   const user = localStorage.getItem("userLoggedIn");
   if(user === 'true') {
     const usersRef = collection(db, 'users');
@@ -309,30 +339,54 @@ const addOrder = async () => {
       openFullScreen1();
 
       await addDoc(subCollectionRepair, {
+        uid: uuidv4(),
         serviceType: store.state.serviceType,
         phoneNumber: store.state.phoneNumber,
         city: store.state.city,
         address: store.state.address,
         district: store.state.district,
         postalCode: store.state.postalCode,
-        pickupDate: store.state.pickupDate,
+        pickupDate: getDate(store.state.pickupDate),
         pickupTime: store.state.pickupTime,
         additionalInfo: store.state.additionalInfo,
 
         deviceType: store.state.deviceType,
         operatingSystem: store.state.operatingSystem,
-        problem: store.state.problem
+        problem: store.state.problem,
+
+        createdAt: createdAt(),
+        status: 'Waiting for pick up'
       })
     })
     centerDialogVisible.value = false
     setTimeout(() => {
-      router.push({ name: 'Home' })
+      router.push({ name: route })
     }, 1000)
   }
 }
 
+const createdAt = () => {
+  const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric'
+  }
+  return currentDate.toLocaleString('en-US', options)
+}
+
+const hideFormOne = () => {
+  hideOne.value = !hideOne.value
+}
+
+const hideFormTwo = () => {
+  hideTwo.value = !hideTwo.value
+}
+
 const handleClose = () => {
-  router.push({ name: 'Home' })
+  addOrder('Home')
 }
 
 const goBack = () => {
@@ -370,8 +424,8 @@ const rules = reactive({
     { required: true, message: 'Please input District'},
   ],
   postalCode: [
-    { type:'number', required: true, message: 'Postal Code must be a number'},
-    { type:'number', required: true, message: 'Please input Phone Number'},
+    { validator: validatePostalCode, required: true},
+    { required: true, message: 'Please input yout postal code'},
   ],
  
   // problem description

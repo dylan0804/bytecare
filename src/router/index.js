@@ -3,11 +3,9 @@ import HomeView from '../views/HomeView.vue'
 import Register from '../views/Register.vue'
 import Login from '../views/Login.vue'
 import Repair from '../views/Repair.vue'
-// import BillingInfo from '../components/BillingInfo.vue'
 import Problems from '../components/Problems.vue'
 import Summary from '../components/Summary.vue'
-
-
+import Profile from '../views/Profile.vue'
 
 const routes = [
   {
@@ -56,6 +54,14 @@ const routes = [
     component: Summary,
     meta: {
       title: 'Repair'
+    }
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
+    meta: {
+      title: 'Profile'
     }
   },
 ]

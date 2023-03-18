@@ -1,6 +1,6 @@
 <template>
     <div class="container mx-auto p-6 py-20">
-        <div class="flex border-2 rounded-xl shadow-lg p-6 md:p-10 flex-col mx-auto space-y-10 md:w-3/4 w-full">
+        <div class="flex border-2 rounded-xl shadow-lg p-6 md:p-10 flex-col mx-auto space-y-10 md:w-3/4 w-full bg-white">
             <div>
                 <el-steps :active="0" align-center>
                     <el-step title="Contact Information" />
@@ -59,8 +59,8 @@
         <span class="text-gray-500">-</span>
       </el-col>
       <el-col :span="11">
-        <el-form-item  label="Postal Code" prop="postalCode">
-          <el-input v-model.number="ruleForm.postalCode" placeholder="11210" clearable />
+        <el-form-item label="Postal Code" prop="postalCode">
+          <el-input v-model="ruleForm.postalCode" placeholder="11210" clearable />
         </el-form-item>
       </el-col>
     </el-form-item>
@@ -116,6 +116,16 @@ const validatePhone = (rule, value, callback) => {
   }
 };
 
+const validatePostalCode = (rule, value, callback) => {
+  if (value === '') {
+    callback(new Error('Please input your postal code'));
+  } else if (isNaN(value)) {
+    callback(new Error('Postal code must be a number'));
+  } else {
+    callback();
+  }
+};
+
 const rules = reactive({
   firstName: [
     { required: true, message: 'Please input your first name'},
@@ -146,8 +156,8 @@ const rules = reactive({
     { required: true, message: 'Please input District'},
   ],
   postalCode: [
-    { type:'number', required: true, message: 'Postal Code must be a number'},
-    { type:'number', required: true, message: 'Please input Phone Number'},
+    { validator: validatePostalCode, required: true},
+    { required: true, message: 'Please input Phone Number'},
   ],
  
   // desc: [

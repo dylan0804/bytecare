@@ -23,7 +23,7 @@
                 <p>Sign in with Google</p>
             </el-button>
         </form>
-        <div class="min-h-screen min-w-[450px] items-center hidden lg:flex w-[50%]">
+        <div class="min-h-screen min-w-[450px] items-center hidden lg:flex w-[50%] bg-white">
             <img src="../assets/img/Service-Management-Solutions-for-Children-What-we-do.jpg" alt="">
             <!-- <div class="flex flex-col justify-center h-[100vh] p-3">
                 <div class="flex flex-col relative justify-center bg-[#387ff5] h-full rounded-xl px-4">

@@ -1,5 +1,5 @@
 <template>
-    <div class="shadow-lg bg-[#fcfeff]">
+    <div class="shadow-md bg-white">
         <nav class="relative container mx-auto px-6 py-4">
            <div class="flex items-center justify-between">
                <div>
@@ -57,7 +57,7 @@
                             </div>
                             <hr>
                             <div class="flex flex-col space-y-3 justify-start">
-                                <el-dropdown-item @click="router.push({ name: 'Repair' })">
+                                <el-dropdown-item @click="router.push({ name: 'Profile' })">
                                     <router-link class="flex space-x-1 items-center" to="#">
                                         <i class="fa-solid fa-user"></i>
                                         <p>My profile</p>
@@ -99,7 +99,7 @@
                  </el-dropdown>
               </div>
            </div>
-           </nav>
+        </nav>
     </div>
 </template>
 <script setup>
@@ -121,7 +121,8 @@ const signOutUser = async () => {
         localStorage.setItem("userLoggedIn", false);
         console.log("user is successfully logged out!")
         localStorage.setItem("isMessageShown", false)
-        window.location.reload();
+        router.push({ name: 'Home'} )
+        window.location.reload()
     } catch (err) {
         console.log(err.message)
     }

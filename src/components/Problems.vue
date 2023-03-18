@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto p-6 py-20">
-      <div class="flex border-2 rounded-xl shadow-md p-6 md:p-10 flex-col mx-auto space-y-10 md:w-3/4 w-full">
+      <div class="flex border-2 rounded-xl shadow-md p-6 md:p-10 flex-col mx-auto space-y-10 md:w-3/4 w-full bg-white">
           <div>
               <el-steps :active="1" align-center>
                   <el-step title="Contact Information" />
@@ -40,12 +40,13 @@
       <el-option label="Linux" value="Linux" />
     </el-select>
   </el-form-item>
-  <el-form-item v-if="ruleForm.repairType === 'Pick up and repair at our office'" label="Pickup time" required>
+  <el-form-item label="Schedule the pickup time" required>
       <el-col :span="11">
         <el-form-item prop="date1">
           <el-date-picker
             v-model="ruleForm.date1"
             type="date"
+            :disabled-date="disabledDate"
             label="Pick a date"
             placeholder="Pick a date"
             style="width: 100%"
@@ -59,9 +60,9 @@
         <el-form-item prop="date2">
           <el-time-select
             v-model="ruleForm.date2"
-            start="10:00"
+            start="08:00"
             step="00:15"
-            end="17:00"
+            end="23:00"
             placeholder="Pick a time"
             style="width: 100%"
           />
@@ -150,6 +151,10 @@ await formEl.validate((valid, fields) => {
   }
 })
 }
+
+const disabledDate = (time) => {
+  return time.getTime() > Date.now();
+};
 
 const goBack = () => {
   router.back()

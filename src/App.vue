@@ -51,6 +51,10 @@ watch(router.currentRoute, checkRoute, { immediate: true })
 </script>
 
 <style lang="scss">
+  body {
+    background-color: #f4f6f8;
+  }
+
   .app {
     display: flex;
     flex-direction: column;

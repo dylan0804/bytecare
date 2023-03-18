@@ -29,7 +29,7 @@
                 <p>Sign up with Google</p>
             </el-button>
         </form>
-        <div class="min-h-screen min-w-[450px] items-center hidden lg:flex w-[50%]">
+        <div class="min-h-screen min-w-[450px] items-center hidden lg:flex w-[50%] bg-white">
             <img src="../assets/img/Service-Management-Solutions-for-Children-What-we-do.jpg" alt="">
             <!-- <div class="flex flex-col justify-center h-[100vh] p-3">
                 <div class="flex flex-col relative justify-center bg-[#387ff5] h-full rounded-xl px-4">
@@ -68,13 +68,14 @@ const validateUser = async () => {
        password.value === "") {
             errMsg.value = "Please fill out all the fields"
        } else {
-            localStorage.setItem("isLoggedIn", true)
+            localStorage.setItem("userLoggedIn", true)
             localStorage.setItem("isMessageShown", false)
-
+            console.log("register on the way")
             // localStorage.setItem("profileEmail", email.value)
             // localStorage.setItem("profileEmail", email.value)
             // localStorage.setItem("profileEmail", email.value)
             await registerUser();
+            router.push({ name: 'Home'} )
             // await store.dispatch("getCurrentUser")
        }
 }
@@ -94,6 +95,8 @@ const checkErrors = (err) => {
 const registerUser = async () => {
     try {
         await createUserWithEmailAndPassword(auth, email.value, password.value);
+
+        openFullScreen1()
 
         await addDoc(collection(db, "users"), {
             firstName: firstName.value,

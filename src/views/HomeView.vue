@@ -3,21 +3,21 @@
     <div class="flex flex-col-reverse items-center md:flex-row">
       <div class="md:w-1/2 md:items-start ml-0 lg:ml-20 flex flex-col items-center">
         <h1 class="text-5xl font-bold text-center max-w-md md:text-left">Enhance Your Computer with Quality Parts</h1>
-        <p class="max-w-md mt-10 text-center text-darkGrayishBlue md:text-left">Upgrade your computing experience with our premium parts selection.</p>
+        <p class="max-w-md mt-10 text-center text-darkGrayishBlue md:text-left">Maximize your computer's performance with our premium selection of accessories. Shop now for unbeatable prices and top-quality products.</p>
         <router-link to="#" class="mt-10 p-2 px-6 text-white bg-gradient-to-l from-blue-500 to-blue-600 rounded-full">Browse now</router-link>
       </div>
       <div class="md:w-1/2">
-        <img class="min-w-[448px]" src="../assets/img/50db211c75130244ea19e355bc16cdd0.png" alt="">
+        <img src="../assets/img/shopping.png" alt="">
       </div>
     </div>
     <div class="flex flex-col-reverse items-center mt-10 md:mt-0 md:flex-row-reverse">
       <div class="md:w-1/2 md:items-start flex flex-col items-center xl:ml-52 md:ml-20">
         <h1 class="text-5xl font-bold text-center max-w-md md:text-left">Your computer's second chance</h1>
         <p class="max-w-md mt-10 text-center text-darkGrayishBlue md:text-left">Your go-to destination for professional and affordable computer repair services to keep your technology running smoothly.</p>
-        <router-link to="#" class="mt-10 p-2 px-6 text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-full">Book Appointment</router-link>
+        <router-link :to="{ name: 'Repair' }" class="mt-10 p-2 px-6 text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-full">Book Appointment</router-link>
       </div>
       <div class="md:w-1/2">
-       <img class="min-w-[400px]" src="../assets/img/istockphoto-1336601258-612x612.jpeg" alt="">
+       <img class="min-w-[400px]" src="../assets/img/computer.png" alt="">
       </div>
     </div>
   </div>
@@ -108,12 +108,12 @@ watchEffect(() => {
 }
 
 .color-transition {
-  background-image: linear-gradient(to bottom, white 0%, white 40%,
+  background-image: linear-gradient(to bottom, #f4f6f8 0%, #f4f6f8 40%,
   #387ff5 40%, #387ff5 100%);
 }
 
 .color-transition-2 {
-  background-image: linear-gradient(to bottom, white 0%, white 20%,
+  background-image: linear-gradient(to bottom,  #f4f6f8 0%, #f4f6f8 20%,
   #387ff5 20%, #387ff5 100%);
 }
 // .color-transition-3 {
