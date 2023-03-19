@@ -100,11 +100,6 @@ watchEffect(() => {
 <style lang="scss" scoped>
 .vertical-line {
   width: 2px;
-
-  @media(max-width: 767px) {
-      width: 100%;
-      height: 2px
-  }
 }
 
 .color-transition {
@@ -116,10 +111,7 @@ watchEffect(() => {
   background-image: linear-gradient(to bottom,  #f4f6f8 0%, #f4f6f8 20%,
   #387ff5 20%, #387ff5 100%);
 }
-// .color-transition-3 {
-//   background-image: linear-gradient(to bottom, white 0%, white 20%,
-//   #387ff5 20%, #387ff5 100%);
-// }
+
 
 .except {
   padding: 2rem 1.5rem;

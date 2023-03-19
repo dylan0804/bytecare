@@ -7,20 +7,20 @@
         <div class=" bg-white border-gray-300 rounded-lg">
             <el-tabs type="border-card">
                 <el-tab-pane label="My order" class="flex flex-col gap-4">
-                    <div v-show="!isLoaded" class="px-4 py-2 border-1 shadow-3xl rounded-md">
+                    <div v-show="!isLoaded" class="px-4 py-2 rounded-md">
                         <el-skeleton :loading="!isLoaded" animated>
                             <template #template>
                             </template>
                         </el-skeleton>
                     </div>
                     <div v-show="isLoaded" v-for="(items, index) in repairItems" :key="index"
-                        class="px-4 py-2 border-1 shadow-3xl rounded-md">
+                        class="px-4 py-2 rounded-md">
                         <div class="flex flex-col items-start space-y-2 md:flex-row md:items-center relative">
                             <p class=" mt-2">Pick up in <strong> {{ items.pickupDate }}</strong> at <strong>{{ items.pickupTime }}</strong></p>
-                            <p :class="['text-sm px-3 py-1 rounded-full text-white ml-0 md:ml-auto md:mr-5', 
-                                        {'bg-blue-500': getStatus(items) === 'In progress',
-                                        'bg-orange-500': getStatus(items) === 'Waiting for pick up',
-                                        'bg-green-600': getStatus(items) === 'Completed'}]">
+                            <p :class="['status', 
+                                        {'status-blue': getStatus(items) === 'In progress',
+                                        'status-orange': getStatus(items) === 'Waiting for pick up',
+                                        'status-green': getStatus(items) === 'Completed'}]">
                             {{ getStatus(items) }}
                             </p>
                             <el-dropdown :hide-on-click="false" class="absolute top-7 md:top-0 right-0">
@@ -53,8 +53,8 @@
     height="500px"
     align-center
     >
-    <div :class="isBelow768 ? 'flex flex-col gap-14' : 'flex gap-32'">
-        <div v-for="(item, index) in selectedItem" :key="index" :class="isBelow768 ? '' : 'h-[500px]'">
+    <div :class="isBelow768 ? 'step-detail-hor' : 'step-detail-vert'">
+        <div v-for="(item, index) in selectedItem" :key="index">
             <el-steps :direction="isBelow768 ? 'horizontal' : 'vertical'" 
             :active="getStatus(item) === 'Waiting for pick up' ? 0 : getStatus(item) === 'In progress' ? 1 : getStatus(item) === 'Completed' ? 3 : 0">
             <el-step title="Waiting for pick up" :description="getDescriptionOne(item)"/>
@@ -234,4 +234,38 @@ const getRepairOrder = async (uid) => {
 </script>
 
 <style lang="scss" scoped>
+
+.step-detail-hor {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+}
+.step-detail-vert {
+    display: flex;
+    gap: 8rem;
+}
+
+.step-detail-height {
+    height: 500px;
+}
+
+.status {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem/* 14px */;
+    line-height: 1.25rem/* 20px */;
+    border-radius: 9999px;
+    margin-left: auto;
+    margin-right: 1rem;
+    color: white;
+ }
+
+ .status-blue {
+    background-color: blue;
+ }
+ .status-orange {
+    background-color: orange;
+ }
+ .status-green {
+    background-color: green;
+ }
 </style>
