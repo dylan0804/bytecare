@@ -9,6 +9,10 @@ import Profile from '../views/Profile.vue'
 
 const routes = [
   {
+    path: '/*',
+    component: 404,
+  },
+  {
     path: '/',
     name: 'Home',
     component: HomeView,
