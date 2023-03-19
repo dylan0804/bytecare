@@ -7,14 +7,14 @@
         <div class=" bg-white border-gray-300 rounded-lg">
             <el-tabs type="border-card">
                 <el-tab-pane label="My order" class="flex flex-col gap-4">
-                    <div v-show="!isLoaded" class="px-4 py-2 rounded-md">
+                    <div v-show="!isLoaded" class="px-4 py-2 rounded-md custom-shadow">
                         <el-skeleton :loading="!isLoaded" animated>
                             <template #template>
                             </template>
                         </el-skeleton>
                     </div>
                     <div v-show="isLoaded" v-for="(items, index) in repairItems" :key="index"
-                        class="px-4 py-2 rounded-md">
+                        class="px-4 py-2 custom-shadow rounded-md">
                         <div class="flex flex-col items-start space-y-2 md:flex-row md:items-center relative">
                             <p class=" mt-2">Pick up in <strong> {{ items.pickupDate }}</strong> at <strong>{{ items.pickupTime }}</strong></p>
                             <p :class="['status', 
@@ -267,5 +267,9 @@ const getRepairOrder = async (uid) => {
  }
  .status-green {
     background-color: green;
+ }
+
+ .custom-shadow {
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
  }
 </style>
