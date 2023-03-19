@@ -23,7 +23,7 @@
                                         'status-green': getStatus(items) === 'Completed'}]">
                             {{ getStatus(items) }}
                             </p>
-                            <el-dropdown :hide-on-click="false" class="absolute top-7 top-0 right-0">
+                            <el-dropdown :hide-on-click="false" class="absolute top-0 right-0">
                                 <i class="text-2xl fa-solid fa-ellipsis-vertical cursor-pointer outline-none"></i>
                                 <template #dropdown>
                                     <el-dropdown-menu class="w-[150px] font-medium">
