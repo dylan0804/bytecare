@@ -7,23 +7,23 @@
         <div class=" bg-white border-gray-300 rounded-lg">
             <el-tabs type="border-card">
                 <el-tab-pane label="My order" class="flex flex-col gap-4">
-                    <div v-show="!isLoaded" class="border-2 px-4 py-3 border-gray-300 shadow-sm rounded-md">
+                    <div v-show="!isLoaded" class="px-4 py-2 border-1 shadow-3xl rounded-md">
                         <el-skeleton :loading="!isLoaded" animated>
                             <template #template>
                             </template>
                         </el-skeleton>
                     </div>
                     <div v-show="isLoaded" v-for="(items, index) in repairItems" :key="index"
-                        class="border-2 px-4 py-2 border-gray-300 shadow-sm rounded-md">
+                        class="px-4 py-2 border-1 shadow-3xl rounded-md">
                         <div class="flex flex-col items-start space-y-2 md:flex-row md:items-center relative">
-                            <p class=" mt-2">Pick up at <strong> {{ items.pickupDate }}</strong> at <strong>{{ items.pickupTime }}</strong></p>
+                            <p class=" mt-2">Pick up in <strong> {{ items.pickupDate }}</strong> at <strong>{{ items.pickupTime }}</strong></p>
                             <p :class="['text-sm px-3 py-1 rounded-full text-white ml-0 md:ml-auto md:mr-5', 
                                         {'bg-blue-500': getStatus(items) === 'In progress',
                                         'bg-orange-500': getStatus(items) === 'Waiting for pick up',
                                         'bg-green-600': getStatus(items) === 'Completed'}]">
                             {{ getStatus(items) }}
                             </p>
-                            <el-dropdown :hide-on-click="false" class="absolute top-0 right-0">
+                            <el-dropdown :hide-on-click="false" class="absolute top-7 md:top-0 right-0">
                                 <i class="text-2xl fa-solid fa-ellipsis-vertical cursor-pointer outline-none"></i>
                                 <template #dropdown>
                                     <el-dropdown-menu class="w-[150px] font-medium">
@@ -132,49 +132,38 @@ const windowSize = ref({
 
 
   const getStatus = (item) => {
-
     const pickupDate = new Date(item.pickupDate);
-    const targetTime = item.pickupTime
-    const currentDate = new Date()
-    const targetDate = new Date(pickupDate.getFullYear(), pickupDate.getMonth(), pickupDate.getDate());
-    
-    const currentTime = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+    const pickupTime = item.pickupTime;
+    const pickupDateTime = new Date(`${pickupDate.toDateString()} ${pickupTime}`);
+    const currentDate = new Date();
 
-    updateStatus(item.uid, targetDate, currentDate, targetTime, currentTime);
+    const timeDifference = currentDate - pickupDateTime
+    const hoursDifference = timeDifference / (1000 * 60 * 60);
+    updateStatus(item.uid, hoursDifference);
     
-    if (targetDate <= currentDate && targetTime < currentTime && !oneHour(targetTime)) {
-        return 'In progress';
-    } else if(targetDate <= currentDate && targetTime < currentTime && oneHour(targetTime))  {
+    if (hoursDifference >= 1) {
         return 'Completed';
-    }
-    else {
+    } else if (hoursDifference > 0 && hoursDifference < 1) {
+        return 'In progress';
+    } else {
         return 'Waiting for pick up';
     }
 }
 
-const oneHour = (givenTime) => {
-  const [hours, minutes] = givenTime.split(':');
-  const givenDate = new Date();
-  givenDate.setHours(hours, minutes, 0, 0);
-
-  const now = new Date();
-  return (now.getTime() - givenDate.getTime() >= 60 * 60 * 1000) ? true : false;
-}
-
-const updateStatus = async (uid, targetDate, currentDate, targetTime, currentTime) => {
+const updateStatus = async (uid, hoursDifference) => {
     const usersRef = collection(db, 'users')
     const currentUserRef = doc(usersRef, store.state.profileId)
     const repairCollectionRef = query(collection(currentUserRef, 'repair'), where("uid", "==", uid))
     // console.log(currentUserRef)
     const querySnapshot = await getDocs(repairCollectionRef);
         querySnapshot.forEach(async (doc) => {
-            if (targetDate <= currentDate && targetTime < currentTime && !oneHour(targetTime)) {
-                updateDoc(doc.ref, {
-                    status: 'In progress'
-                })
-            } else if(targetDate <= currentDate && targetTime < currentTime && oneHour(targetTime))  {
-                updateDoc(doc.ref, {
+            if (hoursDifference >= 1) {
+                    updateDoc(doc.ref, {
                     status: 'Completed'
+                })
+            } else if (hoursDifference > 0 && hoursDifference < 1) {
+                    updateDoc(doc.ref, {
+                    status: 'In progress'
                 })
             }
     });
@@ -207,12 +196,12 @@ const openDialog = (item) => {
 }
 
 const getDescriptionOne = (item) => {
-        return `Order created at: ${item.createdAt}`
+        return `Order created in: ${item.createdAt}`
 }
 
 const getDescriptionTwo = (item) => {
         if(getStatus(item) === 'In progress' || getStatus(item) === 'Completed') {
-            return `Pick up at: ${item.pickupDate} at ${item.pickupTime}`
+            return `Pick up in: ${item.pickupDate} at ${item.pickupTime}`
         }
 }
 
@@ -224,7 +213,7 @@ const getDescriptionThree = (item) => {
             time.setHours(parseInt(hours, 10) + 1, parseInt(minutes, 10));
             // format the new time as a string in "HH:mm" format
             const newTime = time.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            return `Order completed at: ${item.pickupDate} at ${newTime}`
+            return `Order completed in: ${item.pickupDate} at ${newTime}`
         }
 }
 

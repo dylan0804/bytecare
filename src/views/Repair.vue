@@ -1,6 +1,6 @@
 <template>
     <div class="container mx-auto p-6 py-20">
-        <div class="flex border-2 rounded-xl shadow-lg p-6 md:p-10 flex-col mx-auto space-y-10 md:w-3/4 w-full bg-white">
+        <div class="flex border-2 rounded-xl shadow-lg py-6 px-4 md:p-10 flex-col mx-auto space-y-10 lg:w-3/4 w-full bg-white">
             <div>
                 <el-steps :active="0" align-center>
                     <el-step title="Contact Information" />
@@ -18,7 +18,7 @@
     :label-position="labelPosition"
     class="demo-ruleForm"
     :size="formSize"
-    status-icon
+    status-ico
   >
 
     <div class="flex items-center justify-between space-x-6 flex-1">

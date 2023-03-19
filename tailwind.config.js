@@ -13,6 +13,9 @@ module.exports = {
         veryDarkBlue: 'hsl(233, 12%, 13%)',
         veryPaleRed: 'hsl(13, 100%, 96%)',
         veryLightGray: 'hsl(0, 0%, 98%)',
+      },
+      boxShadow: {
+        '3xl': 'rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;'
       }
     },
     screen: {
