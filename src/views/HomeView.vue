@@ -100,6 +100,11 @@ watchEffect(() => {
 <style lang="scss" scoped>
 .vertical-line {
   width: 2px;
+
+  @media(max-width: 767px) {
+    height: 2px;
+    width: 100%;
+  }
 }
 
 .color-transition {

@@ -16,14 +16,14 @@
                     <div v-show="isLoaded" v-for="(items, index) in repairItems" :key="index"
                         class="px-4 py-2 custom-shadow rounded-md">
                         <div class="flex flex-col items-start space-y-2 md:flex-row md:items-center relative">
-                            <p class=" mt-2">Pick up in <strong> {{ items.pickupDate }}</strong> at <strong>{{ items.pickupTime }}</strong></p>
+                            <p class="mt-2">Pick up in <strong> {{ items.pickupDate }}</strong> at <strong>{{ items.pickupTime }}</strong></p>
                             <p :class="['status', 
                                         {'status-blue': getStatus(items) === 'In progress',
                                         'status-orange': getStatus(items) === 'Waiting for pick up',
                                         'status-green': getStatus(items) === 'Completed'}]">
                             {{ getStatus(items) }}
                             </p>
-                            <el-dropdown :hide-on-click="false" class="absolute top-7 md:top-0 right-0">
+                            <el-dropdown :hide-on-click="false" class="absolute top-7 top-0 right-0">
                                 <i class="text-2xl fa-solid fa-ellipsis-vertical cursor-pointer outline-none"></i>
                                 <template #dropdown>
                                     <el-dropdown-menu class="w-[150px] font-medium">
@@ -38,9 +38,9 @@
                         <p class=" text-gray-500 mt-5">Order ID: {{ items.uid }}</p>
                     </div>
                 </el-tab-pane>
-                <el-tab-pane label="Config">Config</el-tab-pane>
-                <el-tab-pane label="Role">Role</el-tab-pane>
-                <el-tab-pane label="Task">Task</el-tab-pane>
+                <el-tab-pane label="Settings">Settings</el-tab-pane>
+                <!-- <el-tab-pane label="Role">Role</el-tab-pane>
+                <el-tab-pane label="Task">Task</el-tab-pane> -->
             </el-tabs>
         </div>
     </div>
@@ -257,13 +257,18 @@ const getRepairOrder = async (uid) => {
     margin-left: auto;
     margin-right: 1rem;
     color: white;
+
+    @media (max-width: 767px) {
+        margin-right: auto;
+        margin-left: 0;
+    }
  }
 
  .status-blue {
-    background-color: blue;
+    background-color: #1E90FF;
  }
  .status-orange {
-    background-color: orange;
+    background-color: #FF8C00;
  }
  .status-green {
     background-color: green;
