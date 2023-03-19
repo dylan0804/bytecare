@@ -204,7 +204,7 @@ const isDisabledTwo = ref(true)
 const centerDialogVisible = ref(false)
 const fullscreenLoading = ref(false)
 const hideOne = ref(true);
-const hideTwo = ref(true)
+const hideTwo = ref(false)
 const router = useRouter();
 const store = useStore();
 

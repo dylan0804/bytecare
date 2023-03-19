@@ -153,7 +153,7 @@ await formEl.validate((valid, fields) => {
 }
 
 const disabledDate = (time) => {
-  return time.getTime() > Date.now();
+  return time.getTime() < Date.now();
 };
 
 const goBack = () => {
