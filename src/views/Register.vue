@@ -49,7 +49,8 @@ import { ref } from 'vue';
 import db from '../firebase/firebaseInit'
 import firebase from '../firebase/firebaseInit'
 import { auth } from '../firebase/firebaseInit'
-import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from 'firebase/auth'
+import { last } from 'lodash';
 
 //variables
 const firstName = ref("");
@@ -69,11 +70,9 @@ const validateUser = async () => {
             errMsg.value = "Please fill out all the fields"
        } else {
             localStorage.setItem("userLoggedIn", true)
-            localStorage.setItem("isMessageShown", false)
-            console.log("register on the way")
-            // localStorage.setItem("profileEmail", email.value)
-            // localStorage.setItem("profileEmail", email.value)
-            // localStorage.setItem("profileEmail", email.value)
+            localStorage.setItem("profileEmail", email.value)
+            localStorage.setItem("profileFirstName", firstName.value)
+            localStorage.setItem("profileLastName", lastName.value)
             await registerUser();
             router.push({ name: 'Home'} )
             // await store.dispatch("getCurrentUser")
@@ -103,6 +102,10 @@ const registerUser = async () => {
             lastName: lastName.value,
             email: email.value
         })
+
+        updateProfile(auth.currentUser, {
+            displayName: firstName.value + ' ' + lastName.value,
+        });
     } catch(err) {
         console.log(err.code)
         checkErrors(err)
@@ -124,10 +127,12 @@ const signInWithGoogle = async () => {
     openFullScreen1()
 
     if(await emailDoesntExist(user)) {
-        const displayName = user.displayName;
-        const nameArray = displayName.split(' ');
-        const firstName = nameArray[0];
-        const lastName = nameArray[1];
+        const fullName = user.displayName;
+        const [firstName, ...lastName] = fullName.split(" ")    
+
+        localStorage.setItem("profileFirstName", firstName)
+        localStorage.setItem("profileLastName", lastName)
+        localStorage.setItem("profileEmail", user.email)
 
         await addDoc(collection(db, "users"), {
             firstName: firstName,
@@ -137,7 +142,6 @@ const signInWithGoogle = async () => {
     }
 
     localStorage.setItem("userLoggedIn", true);
-    localStorage.setItem("isMessageShown", false)
     console.log(user);
     router.push({ name: 'Home'} )
   } catch (error) {

@@ -66,10 +66,18 @@ const loginUser = async () => {
     try {
             const loggedIn = await signInWithEmailAndPassword(auth, email.value, password.value)
             const user = loggedIn.user
-            console.log(user.email)
+            console.log(user)
             errMsg.value = "";
+
+            const fullName = user.displayName;
+            const [firstName, ...lastName] = fullName.split(" ")    
+
+            localStorage.setItem("profileFirstName", firstName)
+            localStorage.setItem("profileLastName", lastName)
+            localStorage.setItem("profileEmail", email.value)
+
             localStorage.setItem("userLoggedIn", true);
-            localStorage.setItem("isMessageShown", false)
+
             openFullScreen1()
             setTimeout(() => {
                 router.push({ name: 'Home' })
@@ -94,8 +102,14 @@ const signInWithGoogle = async () => {
     openFullScreen1()
 
     localStorage.setItem("userLoggedIn", true);
-    localStorage.setItem("isMessageShown", false)
-    console.log(user);
+
+    const fullName = user.displayName;
+    const [firstName, ...lastName] = fullName.split(" ")    
+
+    localStorage.setItem("profileFirstName", firstName)
+    localStorage.setItem("profileLastName", lastName)
+    localStorage.setItem("profileEmail", user.email)
+
     setTimeout(() => {
         router.push({ name: 'Home' })
     },  2000)

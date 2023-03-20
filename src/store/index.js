@@ -12,6 +12,11 @@ export default createStore({
     profileLastName: null,
     profileEmail: null,
 
+    // repair user
+    repairFirstName: null,
+    repairLastName: null,
+    repairEmail: null,
+
     //repair step-1
     serviceType: '',
     phoneNumber: null,
@@ -57,6 +62,11 @@ export default createStore({
       state.additionalInfo = payload.desc
     },
 
+    getRepairUser(state, payload) {
+      state.repairFirstName = payload.firstName,
+      state.repairLastName = payload.lastName,
+      state.repairEmail = payload.email
+    },
     getProblemInfo(state, payload) {
       state.operatingSystem = payload.operatingSystem
       state.deviceType = payload.deviceType

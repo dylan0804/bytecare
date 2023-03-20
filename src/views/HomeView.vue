@@ -57,22 +57,6 @@ import { ElMessage } from 'element-plus';
 
 const isLoggedIn = ref(null)
 
-const openMessageOut = () => {
-  localStorage.setItem("isMessageShown", true);
-  ElMessage({
-    message: 'You are logged out!.',
-    type: 'success',
-  })
-}
-
-const openMessageIn = () => {
-  localStorage.setItem("isMessageShown", true);
-  ElMessage({
-    message: 'You are logged in!.',
-    type: 'success',
-  })
-}
-
 onMounted(() => {
     const userLoggedIn = localStorage.getItem("userLoggedIn");
     if (userLoggedIn === 'true') {
@@ -86,13 +70,6 @@ watchEffect(() => {
 
   const userLoggedIn = localStorage.getItem("userLoggedIn");
   isLoggedIn.value = userLoggedIn === "true";
-
-  const isMessageShown = localStorage.getItem("isMessageShown")
-  if(!isLoggedIn.value && isMessageShown === 'false') {
-    openMessageOut()
-  }else if(isLoggedIn.value && isMessageShown === 'false') {
-    openMessageIn(isMessageShown)
-  }
 });
 
 </script>

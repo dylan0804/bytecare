@@ -38,12 +38,12 @@
               </div>
               <div v-show="isLoggedIn">
                 <el-dropdown :hide-on-click="false">
-                    <el-skeleton v-if="!store.state.profileFirstName" class=" outline-none" style="--el-skeleton-circle-size: 50px" animated>
+                    <!-- <el-skeleton v-if="!store.state.profileFirstName" class=" outline-none" style="--el-skeleton-circle-size: 50px" animated>
                         <template #template>
                         <el-skeleton-item variant="circle"/>
                         </template>
-                    </el-skeleton>
-                    <el-avatar v-if="store.state.profileLastName" class="text-2xl bg-[#454545] outline-none hover:outline-dashed" :size="50">{{ userInitials }}</el-avatar>
+                    </el-skeleton> -->
+                    <el-avatar class="text-2xl bg-[#454545] outline-none hover:outline-dashed" :size="50">{{ userInitials }}</el-avatar>
                     <template #dropdown>
                         <el-dropdown-menu class="flex flex-col space-y-3 p-4 font-medium text-sm">
                             <div class="flex items-center space-x-4">
@@ -51,8 +51,8 @@
                                     <el-avatar class="text-2xl bg-[#454545] outline-none" :size="50">{{ userInitials }}</el-avatar>
                                 </div>
                         <div>
-                                    <p>{{ store.state.profileFirstName }} {{ store.state.profileLastName }}</p>
-                                    <p>{{ store.state.profileEmail }}</p>
+                                    <p>{{ firstName }} {{ lastName }}</p>
+                                    <p>{{ email }}</p>
                                 </div>
                             </div>
                             <hr>
@@ -108,9 +108,13 @@ import { onMounted, ref, watchEffect } from 'vue';
 import { auth } from '@/firebase/firebaseInit';
 import { signOut } from '@firebase/auth';
 import { useRouter } from 'vue-router';
+import { last } from 'lodash';
 
 //variables
-const store = useStore();
+// const store = useStore();
+const firstName = ref("");
+const lastName = ref("");
+const email = ref("");
 const userInitials = ref("");
 const isLoggedIn = ref(null)
 const router = useRouter();
@@ -118,11 +122,14 @@ const router = useRouter();
 const signOutUser = async () => {
     try {
         await signOut(auth)
-        localStorage.setItem("userLoggedIn", false);
         console.log("user is successfully logged out!")
-        localStorage.setItem("isMessageShown", false)
+
+        localStorage.setItem("profileFirstName", null)
+        localStorage.setItem("profileLastName", null)
+        localStorage.setItem("profileEmail", null)
+        localStorage.setItem("userLoggedIn", false);
+
         router.push({ name: 'Home'} )
-        window.location.reload()
     } catch (err) {
         console.log(err.message)
     }
@@ -136,12 +143,16 @@ onMounted(() => {
     } else {
       console.log("User is not logged in!");
     }
+
+    firstName.value = localStorage.getItem('profileFirstName');
+    lastName.value = localStorage.getItem('profileLastName');
+    email.value = localStorage.getItem('profileEmail');
+
+    userInitials.value = (lastName.value) ? firstName.value[0] + lastName.value[0] : firstName.value[0]
 }),
 
 watchEffect(() => {
-  if (store.state.profileFirstName && store.state.profileLastName) {
-    userInitials.value = store.state.profileFirstName[0] + store.state.profileLastName[0];
-  }
+  
 
   const userLoggedIn = localStorage.getItem("userLoggedIn");
   isLoggedIn.value = userLoggedIn === "true";

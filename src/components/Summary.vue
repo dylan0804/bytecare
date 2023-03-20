@@ -210,9 +210,9 @@ const store = useStore();
 
 const ruleForm = reactive({
   // contact information
-  firstName: '',
-  lastName: '',
-  email: '',
+  firstName: store.state.repairFirstName,
+  lastName: store.state.repairLastName,
+  email: store.state.repairEmail,
   phoneNumber: store.state.phoneNumber,
   city: store.state.city,
   address: store.state.address,
@@ -230,9 +230,9 @@ const ruleForm = reactive({
 })
 
 watchEffect(() => {
-    ruleForm.email = store.state.profileEmail;
-    ruleForm.firstName = store.state.profileFirstName;
-    ruleForm.lastName = store.state.profileLastName
+    ruleForm.email = store.state.repairEmail || store.state.profileEmail
+    ruleForm.firstName = store.state.repairFirstName || store.state.profileFirstName
+    ruleForm.lastName = store.state.repairLastName || store.state.profileLastName
 })
 
 const validatePhone = (rule, value, callback) => {
@@ -293,6 +293,7 @@ const checkFormTwo = (formEl) => {
     formEl.validate((valid, fields) => {
       if (valid) {
         console.log('submit!')
+        store.commit("getRepairUser", ruleForm)
         store.commit("getProblemInfo", ruleForm)
         resolve(true)
       } else {
