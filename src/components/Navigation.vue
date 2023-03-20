@@ -103,12 +103,10 @@
     </div>
 </template>
 <script setup>
-import { useStore } from 'vuex';
 import { onMounted, ref, watchEffect } from 'vue';
 import { auth } from '@/firebase/firebaseInit';
 import { signOut } from '@firebase/auth';
 import { useRouter } from 'vue-router';
-import { last } from 'lodash';
 
 //variables
 // const store = useStore();
@@ -130,6 +128,7 @@ const signOutUser = async () => {
         localStorage.setItem("userLoggedIn", false);
 
         router.push({ name: 'Home'} )
+        window.location.reload();
     } catch (err) {
         console.log(err.message)
     }
