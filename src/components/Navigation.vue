@@ -118,6 +118,7 @@ const isLoggedIn = ref(null)
 const router = useRouter();
 
 const signOutUser = async () => {
+    router.push({ name: 'Home' })
     try {
         await signOut(auth)
         console.log("user is successfully logged out!")
@@ -128,7 +129,7 @@ const signOutUser = async () => {
         localStorage.setItem("userLoggedIn", false);
 
         window.location.reload();
-        router.push({ name: 'Home'} )
+        // router.push({ name: 'Home'} )
     } catch (err) {
         console.log(err.message)
     }

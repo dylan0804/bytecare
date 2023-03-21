@@ -142,11 +142,11 @@ const signInWithGoogle = async () => {
     }
 
     const fullName = user.displayName;
-        const [firstName, ...lastName] = fullName.split(" ")    
+    const [firstName, ...lastName] = fullName.split(" ")    
 
     localStorage.setItem("profileFirstName", firstName)
-        localStorage.setItem("profileLastName", lastName)
-        localStorage.setItem("profileEmail", user.email)
+    localStorage.setItem("profileLastName", lastName)
+    localStorage.setItem("profileEmail", user.email)
 
     localStorage.setItem("userLoggedIn", true);
     console.log(user);
