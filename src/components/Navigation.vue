@@ -127,8 +127,8 @@ const signOutUser = async () => {
         localStorage.setItem("profileEmail", null)
         localStorage.setItem("userLoggedIn", false);
 
-        router.push({ name: 'Home'} )
         window.location.reload();
+        router.push({ name: 'Home'} )
     } catch (err) {
         console.log(err.message)
     }
