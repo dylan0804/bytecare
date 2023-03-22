@@ -22,6 +22,7 @@ const store = useStore()
 
 onMounted(() => {
   onAuthStateChanged(auth, async (user) => {
+    console.log(user)
     store.commit("updateUser", user);
     if(user) {
       await store.dispatch("getCurrentUser")

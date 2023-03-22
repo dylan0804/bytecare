@@ -126,27 +126,20 @@ const signInWithGoogle = async () => {
 
     openFullScreen1()
 
-    if(await emailDoesntExist(user)) {
-        const fullName = user.displayName;
-        const [firstName, ...lastName] = fullName.split(" ")    
-
-        localStorage.setItem("profileFirstName", firstName)
-        localStorage.setItem("profileLastName", lastName)
-        localStorage.setItem("profileEmail", user.email)
-
-        await addDoc(collection(db, "users"), {
-            firstName: firstName,
-            lastName: lastName,
-            email: user.email
-        })
-    }
-
     const fullName = user.displayName;
     const [firstName, ...lastName] = fullName.split(" ")    
 
     localStorage.setItem("profileFirstName", firstName)
     localStorage.setItem("profileLastName", lastName)
     localStorage.setItem("profileEmail", user.email)
+
+    if(await emailDoesntExist(user)) {
+        await addDoc(collection(db, "users"), {
+            firstName: firstName,
+            lastName: lastName,
+            email: user.email
+        })
+    }
 
     localStorage.setItem("userLoggedIn", true);
     console.log(user);

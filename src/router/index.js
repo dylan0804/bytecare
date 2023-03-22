@@ -41,7 +41,8 @@ const routes = [
     name: 'Repair',
     component: Repair,
     meta: {
-      title: 'Repair'
+      title: 'Repair',
+      requiresAuth: true
     }
   },
   {
@@ -49,7 +50,8 @@ const routes = [
     name: 'Problems',
     component: Problems,
     meta: {
-      title: 'Repair'
+      title: 'Repair',
+      requiresAuth: true
     }
   },
   {
@@ -57,7 +59,8 @@ const routes = [
     name: 'Summary',
     component: Summary,
     meta: {
-      title: 'Repair'
+      title: 'Repair',
+      requiresAuth: true
     }
   },
   {
@@ -65,7 +68,8 @@ const routes = [
     name: 'Profile',
     component: Profile,
     meta: {
-      title: 'Profile'
+      title: 'Profile',
+      requiresAuth: true
     }
   },
 ]
@@ -78,9 +82,15 @@ const router = createRouter({
   }
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   document.title = `${to.meta.title} | Bytecare`
-  next();
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const userLoggedIn = localStorage.getItem("userLoggedIn");
+  if (requiresAuth && userLoggedIn === 'false') {
+    next('/register')
+  } else {
+    next()
+  }
 })
 
 export default router

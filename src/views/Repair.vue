@@ -18,14 +18,14 @@
     :label-position="labelPosition"
     class="demo-ruleForm"
     :size="formSize"
-    status-ico
+    status-icon
   >
 
     <div class="flex items-center justify-between space-x-6 flex-1">
       <el-form-item class="w-full" label="First Name" prop="firstName">
       <el-input v-model="ruleForm.firstName" clearable />
     </el-form-item>
-    <el-form-item class="w-full" label="Last Name" prop="lastName">
+    <el-form-item class="w-full" label="Last Name">
       <el-input v-model="ruleForm.lastName" clearable />
     </el-form-item>
     </div>
@@ -100,10 +100,10 @@ const ruleForm = reactive({
   desc: store.state.additionalInfo,
 })
 
-watchEffect(() => {
-    ruleForm.email = store.state.repairEmail || store.state.profileEmail
-    ruleForm.firstName = store.state.repairFirstName || store.state.profileFirstName
-    ruleForm.lastName = store.state.repairLastName || store.state.profileLastName
+watchEffect(() => { 
+    ruleForm.email = store.state.repairEmail || localStorage.getItem("profileEmail")
+    ruleForm.firstName = store.state.repairFirstName || localStorage.getItem("profileFirstName")
+    ruleForm.lastName = store.state.repairLastName || localStorage.getItem("profileLastName")
 })
 
 const validatePhone = (rule, value, callback) => {
@@ -126,14 +126,21 @@ const validatePostalCode = (rule, value, callback) => {
   }
 };
 
+const validateNames = (rule, value, callback) => {
+  if (value === '') {
+    callback(new Error('Please input your name'));
+  } else if (value.trim() === '') {
+    callback(new Error('Please input your name'));
+  } else {
+    callback();
+  }
+};
+
 const rules = reactive({
   firstName: [
+    { validator: validateNames, required: true},
     { required: true, message: 'Please input your first name'},
     { min: 3, message: 'First name must be longer than 3 characters'},
-  ],
-  lastName: [
-    { required: true, message: 'Please input last name'},
-    { min: 3, message: 'Last name must be longer than 3 characters'},
   ],
   email: [
     { required: true, message: 'Please input your email'},

@@ -67,8 +67,8 @@
                 <h1 class="font-bold text-xl">Contact Information</h1>
                 <el-divider />
                 <div>
-                    <p>Full name : {{ store.state.repairFirstName }} {{ store.state.repairLastName }}</p>
-                    <p>Email: {{ store.state.repairEmail }}</p>
+                    <p>Full name : {{ item.repairFirstName }} {{ item.repairLastName }}</p>
+                    <p>Email: {{ item.repairEmail }}</p>
                     <p>Phone number: {{ item.phoneNumber }}</p>
                     <p>City: {{ item.city }}</p>
                     <p>Address: {{ item.address }}</p>

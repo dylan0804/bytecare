@@ -36,7 +36,7 @@
       <el-form-item class="w-full" label="First Name" prop="firstName">
       <el-input v-model="ruleForm.firstName" clearable />
     </el-form-item>
-    <el-form-item class="w-full" label="Last Name" prop="lastName">
+    <el-form-item class="w-full" label="Last Name">
       <el-input v-model="ruleForm.lastName" clearable />
     </el-form-item>
     </div>
@@ -235,6 +235,16 @@ watchEffect(() => {
     ruleForm.lastName = store.state.repairLastName || store.state.profileLastName
 })
 
+const validateNames = (rule, value, callback) => {
+  if (value === '') {
+    callback(new Error('Please input your name'));
+  } else if (value.trim() === '') {
+    callback(new Error('Please input your name'));
+  } else {
+    callback();
+  }
+};
+
 const validatePhone = (rule, value, callback) => {
   if (value === '') {
     callback(new Error('Please input your phone number'));
@@ -341,6 +351,9 @@ const addOrder = async (route) => {
 
       await addDoc(subCollectionRepair, {
         uid: uuidv4(),
+        repairFirstName: store.state.repairFirstName,
+        repairLastName: store.state.repairLastName,
+        repairEmail: store.state.repairEmail,
         serviceType: store.state.serviceType,
         phoneNumber: store.state.phoneNumber,
         city: store.state.city,
@@ -397,12 +410,9 @@ const goBack = () => {
 const rules = reactive({
   // contact information
   firstName: [
+    { validator: validateNames, required: true},
     { required: true, message: 'Please input your first name'},
     { min: 3, message: 'First name must be longer than 3 characters'},
-  ],
-  lastName: [
-    { required: true, message: 'Please input last name'},
-    { min: 3, message: 'Last name must be longer than 3 characters'},
   ],
   email: [
     { required: true, message: 'Please input your email'},
