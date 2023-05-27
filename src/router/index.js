@@ -6,6 +6,11 @@ import Repair from '../views/Repair.vue'
 import Problems from '../components/Problems.vue'
 import Summary from '../components/Summary.vue'
 import Profile from '../views/Profile.vue'
+import Shop from '../views/Shop.vue'
+import Product from '../views/Product.vue'
+import Cart from '../views/Cart.vue'
+import Billing from '../views/Billing.vue'
+import Wishlist from '../views/Wishlist.vue'
 
 const routes = [
   {
@@ -34,6 +39,24 @@ const routes = [
     component: Login,
     meta: {
       title: 'Login'
+    }
+  },
+  {
+    path: '/shop',
+    name: 'Shop',
+    component: Shop,
+    meta: {
+      title: 'Shop',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/product/:uid',
+    name: 'Product',
+    component: Product,
+    meta: {
+      title: 'Product',
+      requiresAuth: true
     }
   },
   {
@@ -69,6 +92,33 @@ const routes = [
     component: Profile,
     meta: {
       title: 'Profile',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/cart',
+    name: 'Cart',
+    component: Cart,
+    meta: {
+      title: 'Cart',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/billing',
+    name: 'Billing',
+    component: Billing,
+    meta: {
+      title: 'Billing',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/wishlist',
+    name: 'Wishlist',
+    component: Wishlist,
+    meta: {
+      title: 'Wishlist',
       requiresAuth: true
     }
   },

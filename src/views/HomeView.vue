@@ -4,7 +4,7 @@
       <div class="md:w-1/2 md:items-start ml-0 lg:ml-20 flex flex-col items-center">
         <h1 class="text-5xl font-bold text-center max-w-md md:text-left">Enhance Your Computer with Quality Parts</h1>
         <p class="max-w-md mt-10 text-center text-darkGrayishBlue md:text-left">Maximize your computer's performance with our premium selection of accessories. Shop now for unbeatable prices and top-quality products.</p>
-        <router-link to="#" class="mt-10 p-2 px-6 text-white bg-gradient-to-l from-blue-500 to-blue-600 rounded-full">Browse now</router-link>
+        <router-link :to="{ name: 'Shop' }" class="mt-10 p-2 px-6 text-white bg-gradient-to-l from-blue-500 to-blue-600 rounded-full">Browse now</router-link>
       </div>
       <div class="md:w-1/2">
         <img src="../assets/img/shopping.png" alt="">
@@ -66,7 +66,6 @@ onMounted(() => {
 }),
 
 watchEffect(() => {
-
   const userLoggedIn = localStorage.getItem("userLoggedIn");
   isLoggedIn.value = userLoggedIn === "true";
 });

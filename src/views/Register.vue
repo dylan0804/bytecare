@@ -50,7 +50,6 @@ import db from '../firebase/firebaseInit'
 import firebase from '../firebase/firebaseInit'
 import { auth } from '../firebase/firebaseInit'
 import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from 'firebase/auth'
-import { last } from 'lodash';
 
 //variables
 const firstName = ref("");

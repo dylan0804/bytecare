@@ -11,11 +11,11 @@
                        <span class="block w-1/2 bg-orange-500 h-0.5 transition-all"></span>
                    </div>
                    <div class="nav-link text-xl">
-                       <router-link to="#">Shop</router-link>
+                       <router-link :to="{ name: 'Shop' }">Shop</router-link>
                        <span class="block w-1/2 bg-orange-500 h-0.5 transition-all"></span>
                    </div>
                    <div class="nav-link text-xl">
-                       <router-link to="#">Wishlist</router-link>
+                       <router-link :to="{ name: 'Wishlist' }">Wishlist</router-link>
                        <span class="block w-1/2 bg-orange-500 h-0.5 transition-all"></span>
                    </div>
                </div>
@@ -69,19 +69,19 @@
                                         <p>Repair</p>
                                     </router-link>
                                 </el-dropdown-item>
-                                <el-dropdown-item>
+                                <el-dropdown-item @click="router.push({ name: 'Shop' })">
                                     <router-link class="flex space-x-1 items-center" to="#">
                                         <i class="fa-solid fa-shop"></i>
                                         <p>Shop</p>
                                     </router-link>
                                 </el-dropdown-item>
-                                <el-dropdown-item>
+                                <el-dropdown-item @click="router.push({ name: 'Cart' })" >
                                     <router-link class="flex space-x-1 items-center" to="#">
                                         <i class="fa-solid fa-cart-shopping"></i>
                                         <p>My cart</p>
                                     </router-link>
                                 </el-dropdown-item>
-                                <el-dropdown-item>
+                                <el-dropdown-item @click="router.push({ name: 'Wishlist' })">
                                     <router-link class="flex space-x-1 items-center" to="#">
                                         <i class="fa-solid fa-heart"></i>
                                         <p>My wishlist</p>
@@ -116,6 +116,8 @@ const email = ref("");
 const userInitials = ref("");
 const isLoggedIn = ref(null)
 const router = useRouter();
+const centerDialogVisible = ref(false)
+const cartDialog = ref(false)
 
 const signOutUser = async () => {
     router.push({ name: 'Home' })

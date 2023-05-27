@@ -41,6 +41,7 @@ export default createStore({
     },
     // set user
     setUserData(state, payload) {
+      localStorage.setItem("profileId", payload.id)
       state.profileId = payload.id
       state.profileFirstName = payload.data().firstName;
       state.profileLastName = payload.data().lastName;
