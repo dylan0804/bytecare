@@ -53,7 +53,7 @@
                 <el-menu-item index="2" @click="currentTab = '2'">Order history</el-menu-item>
                 <el-menu-item index="3" @click="currentTab = '3'">Orders</el-menu-item>
             </el-menu>
-            <div v-show="isLoaded && currentTab === '1'" v-for="(items, index) in repairItems" :key="index"
+            <div v-show="currentTab === '1'" v-for="(items, index) in store.state.repairHistory" :key="index"
                         class="mt-5 px-4 py-2 custom-shadow rounded-lg bg-white">
                         <div class="flex flex-col items-start space-y-2 md:flex-row md:items-center relative">
                             <p class="mt-2">Pick up in <strong> {{ items.pickupDate }}</strong> at <strong>{{ items.pickupTime }}</strong></p>
@@ -78,20 +78,29 @@
                         <p class=" text-gray-500 mt-5">Order ID: {{ items.uid }}</p>
             </div>
 
-            <div v-show="isLoaded && currentTab === '2'" class="mt-5">
-                <el-table :data="cartItems" stripe style="width: 100%">
+            <div v-show="currentTab === '2'" class="mt-5">
+                <el-table :data="store.state.orderHistory" stripe style="width: 100%">
                     <el-table-column type="index" width="50" />
-                    <el-table-column prop="productName" label="Name" width="180">
+                    <el-table-column sortable prop="orderDate" label="Date" width="180">
                         <template #default="scope">
-                            <p>{{ scope.row.firstName }} {{ scope.row.lastName }}</p>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-regular fa-clock"></i>
+                                <p>{{ scope.row.orderDate }}</p>
+                            </div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="productName" label="Customer" width="220">
+                        <template #default="scope">
+                            <p class=" font-bold">{{ scope.row.firstName }} {{ scope.row.lastName }}</p>
+                            <p class="">{{ scope.row.email }}</p>
                         </template>
                     </el-table-column>
                     <el-table-column prop="productPrice" label="Price" min-width="180">
                         <template #default="scope">
-                            <p>{{ scope.row.totalPrice.toLocaleString('en-US', { style: 'currency', currency: 'IDR' }) }}</p>
+                            <p>{{ getTotalPrice(scope.row.totalPrice).toLocaleString('en-US', { style: 'currency', currency: 'IDR' }) }}</p>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="totalQty" label="Quantity" align="center" min-width="100"/>
+                    <el-table-column prop="totalQty" label="Quantity" align="center" sortable min-width="120"/>
                     <el-table-column label="Delivery Type" min-width="180">
                     <template #default="scope">
                         <el-tag effect="plain" size="large" :type="tagType(scope.row.deliveryType)">{{ scope.row.deliveryType }}</el-tag>
@@ -99,11 +108,106 @@
                     </el-table-column>
                     <el-table-column label="" width="150">
                     <template #default="scope">
-                        <el-button class="bg-[#409EFF] text-white" size="large" @click="handleEdit(scope.$index, scope.row)">Details</el-button>
+                        <el-button class="bg-[#409EFF] text-white" size="large" @click="openModal(scope.row)">Details</el-button>
                     </template>
                     </el-table-column>
                 </el-table>
             </div>
+
+            <el-dialog v-model="orderModal" width="1000px" center :before-close="closeModal">
+                <el-dialog
+                    v-model="innerVisible"
+                    width="800px"
+                    title="Order Summary"
+                    center
+                    draggable
+                    append-to-body
+                >
+                <div v-for="(item, index) in selectedOrder" :key="index" class="flex flex-col space-y-10">
+                        <div>
+                            <h1 class=" font-medium text-xl">Billing Information</h1>
+                            <el-divider />
+                            <div>
+                                <p>Full name : {{ item.firstName }} {{ item.lastName }}</p>
+                                <p>Email: {{ item.email }}</p>
+                                <p>Address: {{ item.address }}</p>
+                                <p>Delivery type: {{ item.deliveryType }}</p>
+                                <p>Delivery fee: {{ getDeliveryFee(item.deliveryFee) }}</p>
+                                <p>Order placed at: {{ item.orderDate }}</p>
+                            </div>
+                        </div>
+                </div>  
+                </el-dialog>
+                <div class="flex gap-8">
+                    
+                            <div v-show="!buyAgain" class="h-[400px] w-[200px]">
+                                <el-steps direction="vertical" :active="2" align-center >
+                                <el-step title="Order placed" :description="new Date(selectedOrder[0].orderDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })"/>
+                                <el-step title="Processing"  :description="new Date(selectedOrder[0].orderDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })" />
+                                <el-step v-if="selectedOrder[0].deliveryType !== 'Pickup'" title="Shipped" :description="getShippingDate(selectedOrder[0].orderDate, selectedOrder[0].deliveryType)" />
+                                <el-step v-if="selectedOrder[0].deliveryType !== 'Pickup'" title="Delivered"  :description="getShippingDate(selectedOrder[0].orderDate, selectedOrder[0].deliveryType)" />
+                                <el-step v-if="selectedOrder[0].deliveryType === 'Pickup'" title="Pickup" :description="getDescription(selectedOrder[0])" /> 
+                                </el-steps>
+                            </div>
+                    
+                    <el-divider class="h-[400px]" border-style="double" direction="vertical" />
+                    <div class="flex flex-col w-full">
+                        <div v-for="(item, index) in selectedOrder" :key="index" class="flex flex-col gap-4 h-[400px] overflow-auto">
+                            <div v-for="(items, index) in item.items" class="flex items-center gap-2">
+                                <div class="bg-gray-200 h-[100px] flex justify-center items-center rounded-md">
+                                    <img class="w-[100px] h-auto p-2 object-contain" :src="items.productImg" alt="">
+                                </div>
+                                <div class="flex flex-1 flex-col h-full justify-between">
+                                    <p class="font-bold">{{ items.productName }} x {{ items.productQty }}</p>
+                                    <p>{{ items.productShortDesc }}</p>
+                                    <el-rate
+                                        v-model="items.productRating"
+                                        disabled
+                                        show-score
+                                        text-color="#ff9900"
+                                        score-template="{value}"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col justify-between items-end">
+                        <el-link @click="innerVisible = true" type="primary">Details</el-link>
+                        <div class="flex gap-1">
+                            <div v-for="(item, index) in selectedOrder" :key="index">
+                                <el-button v-if="!item.reviewed" @click="buyAgain = !buyAgain">
+                                    <i class="fa-regular fa-star"></i>
+                                    <span class="ml-2">Write a review</span>
+                                </el-button>
+                            </div>
+                            <!-- <el-button>
+                                <i class="fa-solid fa-rotate-right"></i>
+                                <span class="ml-2">Buy again</span>
+                            </el-button> -->
+                        </div>
+                    </div>
+                    <transition name=slide-fade>
+                        <div v-show="buyAgain" class="w-[500px] flex flex-col justify-between">
+                            <h1 class=" font-semibold">Write a Review</h1>
+                            <el-input
+                                v-model="review"
+                                :autosize="{ minRows: 12, maxRows: 12 }"
+                                type="textarea"
+                                placeholder="Type your review..."
+                                maxlength="100"
+                                show-word-limit
+                            />
+                            <p class="mt-2 font-semibold">Rate your purchase(s)</p>
+                            <el-rate v-model="reviewStar" :colors="colors" />
+                            <div v-for="(item, index) in selectedOrder" :key="index">
+                                <el-button @click="submitReview(item)" class="bg-[#409EFF] text-white w-full">
+                                    Submit review
+                                </el-button>
+                            </div>
+                        </div>
+                    </transition>
+                </div>
+            </el-dialog>
     </div>
 
     <!-- modal -->
@@ -111,7 +215,6 @@
     v-model="centerDialogVisible"
     :before-close="closeDialog"
     width="800px"
-    height="500px"
     align-center
     >
     <div :class="isBelow768 ? 'step-detail-hor' : 'step-detail-vert'">
@@ -125,7 +228,7 @@
         </div>
         <div v-for="(item, index) in selectedItem" :key="index" class="flex flex-col space-y-10">
             <div>
-                <h1 class="font-bold text-xl">Contact Information</h1>
+                <h1 class="font-medium text-xl">Contact Information</h1>
                 <el-divider />
                 <div>
                     <p>Full name : {{ item.repairFirstName }} {{ item.repairLastName }}</p>
@@ -138,7 +241,7 @@
                 </div>
             </div>
             <div>
-                <h1 class="font-bold text-xl">Problem Description</h1>
+                <h1 class="font-medium text-xl">Problem Description</h1>
                 <el-divider />
                 <div>
                     <p>Pick up schedule: {{ item.pickupDate }} at {{ item.pickupTime }}</p>
@@ -162,22 +265,25 @@
 <script setup>
 import firebase from '../firebase/firebaseInit'
 import db from '../firebase/firebaseInit';
-import { onMounted, watchEffect } from 'vue';
+import { onMounted } from 'vue';
 import { ref } from 'vue';
 import { useStore } from 'vuex';
-import { collection, getDocs, updateDoc, query, orderBy, where } from '@firebase/firestore';
-import { storage } from '../firebase/firebaseInit';
-import { getDownloadURL, ref as storageRef } from '@firebase/storage';
+import { collection, getDocs, updateDoc, query, where } from '@firebase/firestore';
 
 
 const repairItems = ref([]);
 const selectedItem = ref([])
+const selectedOrder = ref([])
 const store = useStore();
 const isLoaded = ref(false)
-const uid = ref(null)
 const currentTab = ref('1');
 const centerDialogVisible = ref(null)
-const cartItems = ref([])
+const innerVisible = ref(false)
+const orderModal = ref(false)
+const buyAgain = ref(false)
+const review = ref('')
+const reviewStar = ref(null)
+const colors = ref(['#99A9BF', '#F7BA2A', '#FF9900']) 
 
 const windowSize = ref({
     width: window.innerWidth,
@@ -237,24 +343,22 @@ const windowSize = ref({
 // }
 
 onMounted(async () => {
-  try {
-    await Promise.all([getRepairOrder(localStorage.getItem("profileId")), getOrders()]);
+    if (!store.state.repairHistoryFetched && !store.state.orderHistoryFetched) {
+    // Fetch data from the server and populate the repairHistory
+        try {
+            await Promise.all([store.dispatch('getRepairOrder'), store.dispatch('getOrders')]);
+        }catch (error) {
+            console.error(error)
+        }
+    }
     // Both functions have completed
     window.addEventListener('resize', handleResize);
 
     setTimeout(() => {
       isLoaded.value = true;
     }, 2000);
-  } catch (error) {
     // Handle any errors that occurred during the asynchronous operations
-    console.error(error);
-  }
 });
-
-
-watchEffect(async () => {
-    uid.value = store.state.profileId
-})
 
 const openDialog = (item) => {
     centerDialogVisible.value = true
@@ -262,16 +366,55 @@ const openDialog = (item) => {
     console.log(selectedItem.value)
 }
 
-const getOrders = async () => {
-  const ordersRef = collection(db, 'orders');
-  const cartRef = query(ordersRef, where('buyerUid', '==', localStorage.getItem("profileId")));
-  const querySnapshot = await getDocs(cartRef);
+const openModal = (item) => {
+    orderModal.value = true
+    selectedOrder.value.push(item)
+    console.log(selectedOrder.value)
+}
 
-  querySnapshot.forEach((doc) => {
-    cartItems.value.push(doc.data())
-    console.log(cartItems.value)
-  });
-};
+const getTotalPrice = (price) => {
+    if (typeof price === 'string' && price.includes('Pickup')) {
+        return Number(price.replace('Pickup', ''))
+    } else {
+        return price
+    }
+}
+
+const getDeliveryFee = (fee) => {
+    if(fee === 'Pickup') {
+        return '-'
+    }else if(fee === 'Free') {
+        return 'Free'
+    }else {
+        return fee.toLocaleString('en-US', { style: 'currency', currency: 'IDR' })
+    }
+}
+
+const submitReview = async (item) => {
+    buyAgain.value = !buyAgain.value
+    item.reviewed = true
+    const q = query(collection(db, "orders"), where("uid", "==", item.uid));
+
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc) => {
+        const documentRef = doc.ref;
+        // Use the document reference as needed
+        updateDoc(doc.ref, {
+            reviewed: true
+        })
+    });
+}
+
+// const getOrders = async () => {
+//   const ordersRef = collection(db, 'orders');
+//   const cartRef = query(ordersRef, where('buyerUid', '==', localStorage.getItem("profileId")));
+//   const querySnapshot = await getDocs(cartRef);
+
+//   querySnapshot.forEach((doc) => {
+//     cartItems.value.push(doc.data())
+//   });
+// };
 
 // const getProducts = async () => {
 //   const cartsRef = collection(db, 'orders');
@@ -291,6 +434,29 @@ const getOrders = async () => {
 //   }
 //   console.log(cartItems.value)
 // }
+
+const getDescription = (order) => {
+    if(order.deliveryType === 'Pickup') {
+        return new Date(order.pickupDate).toLocaleDateString("en-US", { month: "long", day: "numeric" });
+    }
+}
+
+const getShippingDate = (order, type) => {
+    const dateObject = new Date(order)
+    
+    if(type === 'Next Day') {
+        dateObject.setDate(dateObject.getDate() + 1);
+    }else if(type === 'Standard') {
+        dateObject.setDate(dateObject.getDate() + 2);
+    }else {
+        dateObject.setDate(dateObject.getDate());
+    }
+
+    return 'Est.' + ' ' + dateObject.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric'
+    })
+}
 
 const getDescriptionOne = (item) => {
         return `Order created in: ${item.createdAt}`
@@ -319,16 +485,21 @@ const closeDialog = () => {
     selectedItem.value.length = 0
 }
 
-const getRepairOrder = async (uid) => {
-    const repairRef = collection(db, 'users', uid, 'repair');
-    const q = query(repairRef, orderBy('status', 'desc'));
-    const getItems = await getDocs(q);
-
-    getItems.forEach((item) => {
-        getStatus(item.data(), item.ref)
-    })
-    
+const closeModal = () => {
+    orderModal.value = false
+    buyAgain.value = false
+    selectedOrder.value.length = 0
 }
+
+// const getRepairOrder = async (uid) => {
+//     const repairRef = collection(db, 'users', uid, 'repair');
+//     const q = query(repairRef, orderBy('status', 'desc'));
+//     const getItems = await getDocs(q);
+
+//     getItems.forEach((item) => {
+//         getStatus(item.data(), item.ref)
+//     })
+// }
 
 const tagType = (type) => {
     if(type === 'Express') {
@@ -346,6 +517,11 @@ const tagType = (type) => {
 
 <style lang="scss" scoped>
 
+:deep(.el-dialog__body) {
+    min-width: 250px;
+    height: min-content;
+    overflow: auto;
+}
 .step-detail-hor {
     display: flex;
     flex-direction: column;
@@ -388,4 +564,17 @@ const tagType = (type) => {
  .custom-shadow {
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
  }
+ .slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(200px);
+}
+
 </style>

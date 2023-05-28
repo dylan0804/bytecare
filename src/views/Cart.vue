@@ -42,7 +42,7 @@
           <el-table-column prop="productPrice" label="Name" width="180" />
           <el-table-column prop="productQty" label="Address" />
         </el-table> -->
-        <div v-show="cartItems.length !== 0 && isLoaded" class="flex space-x-0 md:space-x-6">
+        <div v-show="cartItems.length !== 0 && isLoaded" class="flex flex-col lg:flex-row lg:space-x-6">
             <div class="flex flex-col flex-1">
                 <div v-for="(item, index) in cartItems" :key="index" class="mt-10 py-4 px-2 md:p-4 border-[1px] custom-shadow rounded-lg bg-white shadow-md">
                 <div class="flex space-x-6">
@@ -73,30 +73,32 @@
                 </div>
                 </div>
             </div>
-            <el-affix :offset="0">
-                <div class="w-[350px] lg:flex flex-col hidden">
-                    <div class="rounded-md border-[1px] h-min mt-10 px-4 py-2 bg-white">
-                        <div class="flex items-center gap-2">
-                          <i class="fa-sharp fa-solid fa-bag-shopping"></i>
-                          <h1 class=" font-medium">Order Summary</h1>
-                        </div>
-                        <div class="flex justify-between mt-5">
-                            <p>Price</p>
-                            <p>{{ totalPrice.toLocaleString('en-US', { style: 'currency', currency: 'IDR' }) }}</p>
-                        </div>
-                        <div class="flex justify-between mt-1">
-                            <p>Tax</p>
-                            <p class="text-gray-500 italic">Calculated at checkout</p>
-                        </div>
-                        <el-divider></el-divider>
-                        <div class="flex justify-between">
-                            <p>Subtotal</p>
-                            <p>{{ totalPrice.toLocaleString('en-US', { style: 'currency', currency: 'IDR' }) }}</p>
-                        </div>
-                    </div>
-                    <el-button @click="checkoutOrder" class="w-full p-4 mt-5 bg-[#409EFF] font-normal text-lg" :loading="isLoading" size="large" type="primary">Check out</el-button>
-                </div>
-            </el-affix>
+            <div class="ml-auto w-full lg:max-w-min">
+              <el-affix :offset="0">
+                  <div class="w-full lg:w-[350px] lg:flex flex-col">
+                      <div class="rounded-md border-[1px] h-min mt-10 px-4 py-2 bg-white">
+                          <div class="flex items-center gap-2">
+                            <i class="fa-sharp fa-solid fa-bag-shopping"></i>
+                            <h1 class=" font-medium">Order Summary</h1>
+                          </div>
+                          <div class="flex justify-between mt-5">
+                              <p>Price</p>
+                              <p>{{ totalPrice.toLocaleString('en-US', { style: 'currency', currency: 'IDR' }) }}</p>
+                          </div>
+                          <div class="flex justify-between mt-1">
+                              <p>Tax</p>
+                              <p class="text-gray-500 italic">Calculated at checkout</p>
+                          </div>
+                          <el-divider></el-divider>
+                          <div class="flex justify-between">
+                              <p>Subtotal</p>
+                              <p>{{ totalPrice.toLocaleString('en-US', { style: 'currency', currency: 'IDR' }) }}</p>
+                          </div>
+                      </div>
+                      <el-button @click="checkoutOrder" class="w-full p-4 mt-5 bg-[#409EFF] font-normal text-lg" :loading="isLoading" size="large" type="primary">Check out</el-button>
+                  </div>
+              </el-affix>
+            </div>
         </div>
     </div>
 
@@ -108,48 +110,79 @@ import firebase from '../firebase/firebaseInit'
 import { storage } from '../firebase/firebaseInit';
 import { getDownloadURL, ref as storageRef } from '@firebase/storage';
 import db from '../firebase/firebaseInit';
-import { collection, getDocs, query, where, deleteDoc, doc, updateDoc, addDoc } from '@firebase/firestore';
+import { collection, getDocs, query, where, deleteDoc, doc, updateDoc, addDoc, onSnapshot } from '@firebase/firestore';
 import { useStore } from 'vuex';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, reactive } from 'vue';
 
 const router = useRouter();
 const store = useStore();
-const cartItems = ref([]);
+let cartItems = reactive([]);
 const updateQty = ref(0)
 const isLoaded = ref(false)
 
 onMounted(async () => {
-    await getProducts()
+    getProducts()
     isLoaded.value = true
 })
 
-const getProducts = async () => {
+const getProducts = () => {
   const cartsRef = collection(db, 'carts');
   const cartRef = query(cartsRef, where('buyerUid', '==', localStorage.getItem("profileId")));
-  const items = await getDocs(cartRef);
 
-  try {
-    items.forEach(async (item) => {
-      const itemData = item.data();
-      const imageRef = storageRef(storage, item.data().productImg);
-      const url = await getDownloadURL(imageRef);
-      itemData.productImg = url;
-      updateQty.value = item.data().productQty
-      const priceSeparator = Number(itemData.productPrice.replace(/[^\d]/g, "")) * itemData.productQty;
-      totalPrice.value += parseInt(priceSeparator);
-      cartItems.value.push(itemData);
+  const unsubscribe = onSnapshot(cartRef, (snapshot) => {
+    snapshot.docChanges().forEach(async (change) => {
+      if (change.type === 'added') {
+        const itemData = change.doc.data();
+        const imageRef = storageRef(storage, itemData.productImg);
+        const url = await getDownloadURL(imageRef);
+        itemData.productImg = url;
+        updateQty.value = itemData.productQty;
+        const priceSeparator = Number(itemData.productPrice.replace(/[^\d]/g, "")) * itemData.productQty;
+        totalPrice.value += parseInt(priceSeparator);
+        cartItems.push(itemData);
+      }
+      if (change.type === 'modified') {
+        // Handle modified documents
+        const index = cartItems.findIndex((item) => item.id === itemId);
+        if (index > -1) {
+          const updatedItem = {
+            ...cartItems[index],
+            productQty: itemData.productQty // Update the quantity
+          };
+          cartItems[index] = updatedItem;
+        } else {
+          const imageRef = storageRef(storage, itemData.productImg);
+          const url = await getDownloadURL(imageRef);
+          itemData.productImg = url;
+          cartItems.value.push(itemData); // Add the modified item as a new item
+        }
+      }
+
+      if (change.type === 'removed') {
+        // Handle removed documents
+        const itemId = change.doc.id;
+        // Remove the item from cartItems.value array
+        const index = cartItems.findIndex((item) => item.id === itemId);
+        if (index > -1) {
+          cartItems.splice(index, 1);
+        }
+      }
     });
-  } catch (err) {
-    console.error(err);
-  }
-  console.log(cartItems.value)
-}
+  });
+
+  // Store the unsubscribe function to be able to stop listening for updates
+  // For example, you can call unsubscribe() when the component is unmounted
+
+  // Optional: Return the unsubscribe function if you need it for cleanup
+  return unsubscribe;
+};
+
 
 const totalPrice = computed(() => calculateTotalPrice());
 
 const calculateTotalPrice = () => {
   let total = 0;
-  for (const item of cartItems.value) {
+  for (const item of cartItems) {
     const price = Number(item.productPrice.replace(/[^\d]/g, ""));
     const quantity = item.productQty;
     total += price * quantity;
@@ -158,7 +191,10 @@ const calculateTotalPrice = () => {
 };
 
 const deleteItem = async (uid) => {
-  cartItems.value = cartItems.value.filter(item => item.uid !== uid);
+  const index = cartItems.findIndex(item => item.uid === uid);
+  if (index !== -1) {
+    cartItems.splice(index, 1);
+  }
 
   const q = query(
     collection(db, "carts"),
@@ -178,7 +214,10 @@ const deleteItem = async (uid) => {
 };
 
 const addToWishlist = async (uid) => {
-  cartItems.value = cartItems.value.filter(item => item.uid !== uid);
+  const index = cartItems.findIndex(item => item.uid === uid);
+  if (index !== -1) {
+    cartItems.splice(index, 1);
+  }
 
   const q = query(
     collection(db, "carts"),

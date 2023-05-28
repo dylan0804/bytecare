@@ -178,8 +178,7 @@
         sub-title="You can view your order details in your profile page"
       >
         <template #extra>
-          <el-button v-loading.fullscreen.lock="fullscreenLoading" @click="addOrder('Home')">Return to Home</el-button>
-          <el-button class="bg-blue-500 px-6" v-loading.fullscreen.lock="fullscreenLoading" @click="addOrder('Profile')" type="primary">View Order History</el-button>
+          <el-button class="bg-blue-500 px-6" @click="router.push({ name: 'Profile' })" type="primary">View Order History</el-button>
         </template>
       </el-result>
   </el-dialog>
@@ -325,9 +324,12 @@ const submitForm = async (ruleFormRefOne, ruleFormRefTwo) => {
   console.log(isFormOneCorrect, isFormTwoCorrect)
 
   if(isFormOneCorrect && isFormTwoCorrect) {
+    centerDialogVisible.value = true
+    addOrder()
     store.commit("getContactInfo", ruleForm)
     store.commit("getProblemInfo", ruleForm)
-    centerDialogVisible.value = true
+    store.dispatch('getRepairOrder')
+    
   }
 }
 
@@ -337,7 +339,7 @@ const getDate = (date) => {
   return dateObj.toLocaleDateString('en-US', options);
 }
 
-const addOrder = async (route) => {
+const addOrder = async () => {
   const user = localStorage.getItem("userLoggedIn");
   if(user === 'true') {
     const usersRef = collection(db, 'users');
@@ -372,10 +374,6 @@ const addOrder = async (route) => {
         status: 'Waiting for pick up'
       })
     })
-    centerDialogVisible.value = false
-    setTimeout(() => {
-      router.push({ name: route })
-    }, 1000)
   }
 }
 

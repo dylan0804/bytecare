@@ -1,7 +1,7 @@
 <template>
     <div class="container mx-auto p-6 py-20 affix-container">
         <h1 class="text-2xl">Billing details</h1>
-        <div class="flex lg:space-x-24">
+        <div class="flex flex-col lg:flex-row lg:space-x-24">
             <div class="flex-col flex-1 mt-10">
                 <el-form
                     ref="ruleFormRef"
@@ -104,10 +104,11 @@
                             <input type="radio" name="deliveryMethod" :value="method.value" v-model="deliveryMethod">
                             {{ method.label }}
                             <p class="ml-auto">{{ delivery(method.value, totalPrice) }}</p>
-                            <p v-if="method.value === 'pickup' && pickupDate">Your pickup date is {{ pickupDate.toLocaleDateString('en-US', options) }}</p>
+                            <p v-if="method.value === 'Pickup' && pickupDate">Your pickup date is {{ pickupDate.toLocaleDateString('en-US', options) }}</p>
                         </label>
-                        <div v-show="deliveryMethod === 'pickup'" class="flex flex-col mt-4 p-5 rounded-lg border-dashed border-2 border-gray-300 max-w-lg bg-[#edf2f7]">
+                        <div v-show="deliveryMethod === 'Pickup'" class="flex flex-col mt-4 p-5 rounded-lg border-dashed border-2 border-gray-300 max-w-lg bg-[#edf2f7]">
                             <p>Schedule a pickup date</p>
+                            
                             <el-date-picker
                                 v-model="pickupDate"
                                 class="mt-2"
@@ -122,8 +123,8 @@
                     </div>
                 </el-form>
             </div>
-            <div class="flex flex-col">
-                <div class="w-[500px] hidden lg:block">
+            <div class="flex flex-col w-full lg:w-[500px]">
+                <div class="w-full lg:w-[500px]">
                     <div class="rounded-md border-[1px] h-min mt-10 px-4 py-2 bg-white overflow-scroll">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-cart-shopping"></i>
@@ -143,7 +144,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-[500px] hidden lg:block">
+                <div class="w-full lg:w-[500px]">
                     <div class="rounded-md border-[1px] h-min mt-5 px-4 py-2 bg-white">
                         <div class="flex items-center gap-2">
                             <i class="fa-sharp fa-solid fa-bag-shopping"></i>
@@ -171,6 +172,22 @@
                 </div>
             </div>
         </div>
+
+        <el-dialog
+          v-model="centerDialogVisible"
+          width="800px"
+          align-center
+        >
+        <el-result
+        icon="success"
+        title="Your order has been placed!"
+        sub-title="You can view your order details in your profile page"
+        >
+        <template #extra>
+          <el-button @click="router.push({ name: 'Profile' })" class="bg-blue-500 px-6" type="primary">View Order History</el-button>
+        </template>
+      </el-result>
+        </el-dialog>
     </div>
 </template>
 
@@ -181,7 +198,9 @@ import db from '../firebase/firebaseInit';
 import { collection, getDocs, query, where, addDoc, writeBatch, doc } from '@firebase/firestore';
 import { ref, reactive, onMounted, computed, watchEffect } from 'vue';
 import { v4 as uuidv4 } from 'uuid'
+import store from '@/store';
 
+const router = useRouter()
 const paymentMethod = ref('')
 const deliveryMethod = ref('')
 const pickupDate = ref('')
@@ -190,6 +209,7 @@ const ruleFormRef = ref()
 const labelPosition = ref('top')
 const isLoading = ref(false)
 const totalWithTax = ref(0)
+const centerDialogVisible = ref(false)
 
 const firstName = ref('')
 const lastName = ref('')
@@ -511,6 +531,12 @@ const validateForm = () => {
     return isValid
 }
 
+const getDate = (date) => {
+  const dateObj = new Date(date);
+  const options = { month: 'long', day: 'numeric', year: 'numeric' };
+  return dateObj.toLocaleDateString('en-US', options);
+}
+
 const placeOrder = async () => {
   const cartsRef = collection(db, 'carts');
   const cartRef = query(cartsRef, where('buyerUid', '==', localStorage.getItem("profileId")));
@@ -546,7 +572,11 @@ const placeOrder = async () => {
       items: items.docs.map((item) => item.data()),
       totalPrice: totalWithTax.value,
       totalQty: totalQty,
-      buyerUid: localStorage.getItem('profileId')
+      buyerUid: localStorage.getItem('profileId'),
+      status: 'Order placed',
+      pickupDate: getDate(pickupDate.value),
+      orderDate: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+      reviewed: false
     };
 
     batch.set(orderRef, orderData);
@@ -554,6 +584,7 @@ const placeOrder = async () => {
   } catch (err) {
     console.error(err);
   }
+  await store.dispatch('getOrders')
 }
 
 
@@ -596,6 +627,7 @@ const submitForm = async (formEl) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (valid && validateForm()) {
+            centerDialogVisible.value = true
             placeOrder()
         } else {
             console.log('error submit!', fields)

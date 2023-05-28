@@ -6,9 +6,9 @@
                     <h1 class="text-3xl">Bytecare</h1>
                     <div class="flex flex-col space-y-6 text-darkGrayishBlue">
                         <h2 class="text-2xl font-medium text-black">My Account</h2>
-                        <router-link :to="{ name: 'Register' }">Sign in / Register</router-link>
-                        <router-link to="#">My cart</router-link>
-                        <router-link to="#">My wishlist</router-link>
+                        <router-link v-if="userLoggedIn === 'true'" :to="{ name: 'Register' }">Sign in / Register</router-link>
+                        <router-link :to="{ name: 'Cart' }">My cart</router-link>
+                        <router-link :to="{ name: 'Wishlist' }">My wishlist</router-link>
                     </div>
                     <div>
                         <h2 class="text-2xl font-medium">Contact Us</h2>
@@ -19,6 +19,12 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue';
+
+onMounted(() => {
+    const userLoggedIn = localStorage.getItem("userLoggedIn");
+})
+
 </script>
 
 <style lang="scss" scoped>
