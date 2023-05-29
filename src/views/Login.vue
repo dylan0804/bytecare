@@ -66,7 +66,7 @@ const loginUser = async () => {
     try {
             const loggedIn = await signInWithEmailAndPassword(auth, email.value, password.value)
             const user = loggedIn.user
-            console.log(user)
+           
             errMsg.value = "";
 
             const fullName = user.displayName;

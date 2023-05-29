@@ -445,7 +445,7 @@ const getProducts = async () => {
   } catch (err) {
     console.error(err);
   }
-  console.log(cartItems.value)
+  
 }
 
 const delivery = (method, price) => {

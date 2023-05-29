@@ -363,13 +363,13 @@ onMounted(async () => {
 const openDialog = (item) => {
     centerDialogVisible.value = true
     selectedItem.value.push(item)
-    console.log(selectedItem.value)
+    
 }
 
 const openModal = (item) => {
     orderModal.value = true
     selectedOrder.value.push(item)
-    console.log(selectedOrder.value)
+    
 }
 
 const getTotalPrice = (price) => {

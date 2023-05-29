@@ -58,11 +58,7 @@ const isLoggedIn = ref(null)
 
 onMounted(() => {
     const userLoggedIn = localStorage.getItem("userLoggedIn");
-    if (userLoggedIn === 'true') {
-      console.log("User is logged in!");
-    } else {
-      console.log("User is not logged in!");
-    }
+    
 }),
 
 watchEffect(() => {

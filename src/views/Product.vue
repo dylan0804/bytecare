@@ -70,6 +70,7 @@ const productItem = ref([])
 const productQty = ref(1)
 const store = useStore();
 const isLoaded = ref(false)
+const msg = ref('')
 
 onMounted(async () => {
     await getProduct()
@@ -95,7 +96,7 @@ const getProduct = async () => {
 }
 
 const addItemToCollection = async (collectionName, itemData) => {
-  openNotification();
+  openNotification(collectionName);
   if (await productDoesntExist(route.params.uid, collectionName)) {
     try {
       await addDoc(collection(db, collectionName), {
@@ -147,10 +148,12 @@ const productDoesntExist = async (uid, collectionName) => {
     return (snapshot.empty) ? true : false;
 }
 
-const openNotification = () => {
+const openNotification = (collectionName) => {
+  (collectionName === 'wishlist') ? msg.value = 'wishlist' : msg.value = 'cart'
+
     ElNotification({
     title: 'Success',
-    message: 'Product has been added to your cart',
+    message: `Product has been added to your ${msg.value}`,
     type: 'success',
     duration: 1000,
   })

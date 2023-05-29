@@ -140,11 +140,6 @@ const signOutUser = async () => {
 // check is user logged or not
 onMounted(() => {
     const userLoggedIn = localStorage.getItem("userLoggedIn");
-    if (userLoggedIn === 'true') {
-      console.log("User is logged in!");
-    } else {
-      console.log("User is not logged in!");
-    }
 
     firstName.value = localStorage.getItem('profileFirstName');
     lastName.value = localStorage.getItem('profileLastName');

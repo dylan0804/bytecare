@@ -1,6 +1,9 @@
 import { createStore } from 'vuex'
 import db from '@/firebase/firebaseInit'
 import { collection, query, where, getDocs, updateDoc, orderBy } from 'firebase/firestore'
+import { getDownloadURL, ref as storageRef } from '@firebase/storage';
+import { storage } from '../firebase/firebaseInit';
+
 
 export default createStore({
   state: {
@@ -35,7 +38,10 @@ export default createStore({
     repairHistory: [],
     orderHistory: [],
     repairHistoryFetched: false,
-    orderHistoryFetched: false
+    orderHistoryFetched: false,
+
+    //shop
+    shopItems: []
   },
   getters: {
   },
@@ -51,10 +57,6 @@ export default createStore({
       state.profileFirstName = payload.data().firstName;
       state.profileLastName = payload.data().lastName;
       state.profileEmail = payload.data().email;
-      console.log(state.profileId)
-      console.log(state.profileFirstName)
-      console.log(state.profileLastName)
-      console.log(state.profileEmail)
     },
 
     //get contact info
@@ -82,7 +84,6 @@ export default createStore({
     },
     PUSH_REPAIR_HISTORY(state, item) {
       state.repairHistory.push(item);
-      console.log(state.repairHistory)
     },
     SET_REPAIR_HISTORY_FETCHED(state, value) {
       state.repairHistoryFetched = value;
@@ -101,6 +102,11 @@ export default createStore({
     SET_ORDER_HISTORY_FETCHED(state, value) {
       state.orderHistoryFetched = value;
     },
+    // ADD_PRODUCT(state, products) {
+    //   state.shopItems.push(products);
+    //   console.log(state.shopItems)
+    //   // Update the products array in the store
+    // }
 
   },
   actions: {
@@ -111,7 +117,6 @@ export default createStore({
         const q = query(usersRef, where("email", "==", state.user.email));
         const querySnapshot = await getDocs(q)
         querySnapshot.forEach((doc) => {
-          console.log(`${state.user.email} is the current user!!!`)
           commit("setUserData", doc)
         })
       }else {
@@ -174,6 +179,28 @@ export default createStore({
     commit('SET_CART_ITEMS', temp);
     commit('SET_ORDER_HISTORY_FETCHED', true)
   },
+
+  //  async getProducts ({ commit, state }) {
+  //   // Check if the products array is already populated in the store
+  //   if (state.shopItems.length > 0) {
+  //     return; // Skip fetching if the products are already available in the store
+  //   }
+  
+  //   const productsRef = collection(db, 'products');
+  //   const items = await getDocs(productsRef);
+  //   try {
+  //     items.forEach(async (item) => {
+  //       const itemData = item.data();
+  //       const imageRef = storageRef(storage, item.data().productImg);
+  //       const url = await getDownloadURL(imageRef);
+  //       itemData.productImg = url;
+  //       commit('ADD_PRODUCT', itemData); // Commit a mutation to add the product to the store
+  //     });
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // }
+  
   },
   modules: {
   }

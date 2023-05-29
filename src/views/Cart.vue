@@ -206,7 +206,7 @@ const deleteItem = async (uid) => {
   querySnapshot.forEach(async (item) => {
     try {
       await deleteDoc(doc(db, "carts", item.id));
-      console.log('Document deleted successfully.');
+      
     } catch (error) {
       console.log(error.message)
     }
@@ -222,7 +222,7 @@ const addToWishlist = async (uid) => {
   const q = query(
     collection(db, "carts"),
     where("uid", '==', uid),
-    where("buyerEmail", '==', localStorage.getItem("profileEmail"))
+    where("buyerUid", '==', localStorage.getItem("profileId"))
   );
 
   if(await productDoesntExist(uid)) {

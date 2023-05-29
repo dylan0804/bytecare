@@ -41,7 +41,7 @@
               <span class="sr-only">Search</span>
             </button>
         </div>       
-         <ul class="absolute top-10 z-50 flex flex-col mt-4 justify-center rounded-xl">
+         <!-- <ul class="absolute top-10 z-50 flex flex-col mt-4 justify-center rounded-xl">
         <li @click="viewProduct(item.uid)" 
             v-show="searchQuery !== '' && searchQuery !== ' '" 
             v-for="item in filteredProducts" :key="index"
@@ -60,7 +60,7 @@
             </div>
           <hr class="mt-6" :class="{'hidden': index === filteredProducts.length - 1}">
         </li>
-       </ul>
+       </ul> -->
       </div>
       <div v-show="!isLoaded" class="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-28 mt-10">
          <div v-for="animation in skeleton" :key="index">
@@ -84,7 +84,7 @@
          </div>
        </div>
        <div v-show="isLoaded" class="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-20 mt-10">
-            <div v-for="item in productItem" :key="index"
+            <div v-for="(item, index) in productItem" :key="index"
             class="flex flex-1 flex-col gap-2"
             >
                 <div class="relative bg-gray-200 flex justify-center items-center rounded-md cursor-pointer"
@@ -177,6 +177,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 import firebase from '../firebase/firebaseInit'
 import { storage } from '../firebase/firebaseInit';
 import { getDownloadURL, ref as storageRef } from '@firebase/storage';
@@ -186,13 +187,14 @@ import { onMounted, ref, watchEffect } from 'vue';
 import algoliasearch from 'algoliasearch';
 import { v4 as uuidv4 } from 'uuid';
 
-const productName = ref(null)
-const productDesc = ref(null)
-const productPrice = ref(null)
-const productRating = ref(null)
-const productShortDesc = ref(null)
-const productStock = ref(null)
-const imgUrl = ref(null)
+const store = useStore()
+// const productName = ref(null)
+// const productDesc = ref(null)
+// const productPrice = ref(null)
+// const productRating = ref(null)
+// const productShortDesc = ref(null)
+// const productStock = ref(null)
+// const imgUrl = ref(null)
 const router = useRouter()
 const skeleton = ref(4)
 const isLoaded = ref(false)
@@ -203,8 +205,6 @@ const productItem = ref([])
 const searchQuery = ref('')
 const filteredProducts = ref([])
 
-const placeholder = 'https://via.placeholder.com/400x400'
-
 const client = algoliasearch('BJOGI50ZMG', '6ac84c16c1932221490f03d45fb5c11f');
 
 watchEffect(() => {
@@ -214,6 +214,7 @@ watchEffect(() => {
 });
 
 const getProducts = async () => {
+ 
   const productsRef = collection(db, 'products');
   const items = await getDocs(productsRef);
   try {
@@ -222,7 +223,7 @@ const getProducts = async () => {
       const imageRef = storageRef(storage, item.data().productImg);
       const url = await getDownloadURL(imageRef);
       itemData.productImg = url;
-      productItem.value.push(itemData);
+      productItem.value.push(itemData)
     });
   } catch (err) {
     console.error(err);
@@ -253,7 +254,6 @@ const addOrder = async () => {
 
 onMounted(async () => {
     await getProducts();
-    console.log(productItem.value)
 
     // setTimeout(() => {
     //     isLoaded.value = true
