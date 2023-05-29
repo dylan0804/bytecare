@@ -85,7 +85,6 @@ const getProducts = async () => {
   } catch (err) {
     console.error(err);
   }
-  console.log(cartItems.value)
 }
 
 const deleteItem = async (uid) => {
@@ -102,7 +101,6 @@ const deleteItem = async (uid) => {
   querySnapshot.forEach(async (item) => {
     try {
       await deleteDoc(doc(db, "wishlist", item.id));
-      console.log('Document deleted successfully.');
     } catch (error) {
       console.log(error.message)
     }

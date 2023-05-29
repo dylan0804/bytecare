@@ -141,7 +141,7 @@ const signInWithGoogle = async () => {
     }
 
     localStorage.setItem("userLoggedIn", true);
-    console.log(user);
+    
     router.push({ name: 'Home'} )
   } catch (error) {
     // Handle errors here
