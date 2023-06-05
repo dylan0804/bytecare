@@ -41,7 +41,8 @@ export default createStore({
     orderHistoryFetched: false,
 
     //shop
-    shopItems: []
+    shopItems: [],
+    shopItemsFetched: false,
   },
   getters: {
   },
@@ -102,12 +103,13 @@ export default createStore({
     SET_ORDER_HISTORY_FETCHED(state, value) {
       state.orderHistoryFetched = value;
     },
-    // ADD_PRODUCT(state, products) {
-    //   state.shopItems.push(products);
-    //   console.log(state.shopItems)
-    //   // Update the products array in the store
-    // }
-
+    ADD_PRODUCT(state, products) {
+      state.shopItems = products;
+      // Update the products array in the store
+    },
+    SET_SHOP_ITEMS_FETCHED(state, value) {
+      state.shopItemsFetched = value;
+    },
   },
   actions: {
     // get current user data
@@ -180,26 +182,29 @@ export default createStore({
     commit('SET_ORDER_HISTORY_FETCHED', true)
   },
 
-  //  async getProducts ({ commit, state }) {
-  //   // Check if the products array is already populated in the store
-  //   if (state.shopItems.length > 0) {
-  //     return; // Skip fetching if the products are already available in the store
-  //   }
-  
-  //   const productsRef = collection(db, 'products');
-  //   const items = await getDocs(productsRef);
-  //   try {
-  //     items.forEach(async (item) => {
-  //       const itemData = item.data();
-  //       const imageRef = storageRef(storage, item.data().productImg);
-  //       const url = await getDownloadURL(imageRef);
-  //       itemData.productImg = url;
-  //       commit('ADD_PRODUCT', itemData); // Commit a mutation to add the product to the store
-  //     });
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // }
+   async getProducts ({ commit }) {
+    // Check if the products array is already populated in the store
+    
+    let temp = []
+
+    const productsRef = collection(db, 'products');
+    const items = await getDocs(productsRef);
+    try {
+      items.forEach(async (item) => {
+        const itemData = item.data();
+        const imageRef = storageRef(storage, item.data().productImg);
+        const url = await getDownloadURL(imageRef);
+        itemData.productImg = url;
+        temp.push(itemData)
+      });
+    } catch (err) {
+      console.error(err);
+    }
+    console.log('hey')
+
+    commit('ADD_PRODUCT', temp)
+    commit('SET_SHOP_ITEMS_FETCHED', true)
+  }
   
   },
   modules: {

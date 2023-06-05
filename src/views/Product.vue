@@ -3,8 +3,8 @@
         <Skeleton v-show="!isLoaded" />
         <div v-show="isLoaded" v-for="item in productItem" :key="index"
         class="xl:flex gap-20">
-            <img class="md:w-[50%] mx-auto h-auto" :src="item.productImg" alt="">
-            <div class="flex flex-col mt-10">
+            <img class="xl:w-1/2 mx-auto h-auto" :src="item.productImg" alt="">
+            <div class="xl:w-1/2 w-full flex flex-col mt-10">
                 <div class="flex flex-col gap-3">
                     <p class=" text-3xl font-bold">{{ item.productName }}</p>
                     <p class=" text-gray-600">{{ item.productDesc }}</p>

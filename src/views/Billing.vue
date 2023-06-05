@@ -534,7 +534,7 @@ const validateForm = () => {
 const getDate = (date) => {
   const dateObj = new Date(date);
   const options = { month: 'long', day: 'numeric', year: 'numeric' };
-  return dateObj.toLocaleDateString('en-US', options);
+  return (!date) ? '' : dateObj.toLocaleDateString('en-US', options);
 }
 
 const placeOrder = async () => {

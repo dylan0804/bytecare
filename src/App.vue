@@ -21,12 +21,17 @@ const router = useRouter()
 const store = useStore()
 
 onMounted(() => {
+  // if(!store.state.shopItemsFetched) {
+  //   store.dispatch('getProducts')
+  // }
+
   onAuthStateChanged(auth, async (user) => {
     store.commit("updateUser", user);
     if(user) {
       await store.dispatch("getCurrentUser")
     }
   })
+
 })
 
 

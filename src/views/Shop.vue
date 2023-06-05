@@ -28,8 +28,67 @@
        <input type="text" v-model="imgUrl">
        <br>
        <el-button @click="addOrder">Add item</el-button> -->
-       <div @click="centerDialogVisible = true" class="relative">
-        <div class="relative">
+       <div>
+         <ais-instant-search :search-client="client" index-name="Products">
+          <ais-configure :hits-per-page.camel="4" />
+          <ais-autocomplete>
+            <template v-slot="{ currentRefinement, indices, refine }">
+              <div class="relative">
+                <input
+                  type="search"
+                  :value="currentRefinement"
+                  placeholder="Search for a product"
+                  @input="refine($event.currentTarget.value)"
+                  class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  />
+                  <button type="submit" class="absolute top-0 right-0 p-2.5 text-sm font-medium text-white bg-blue-700 rounded-r-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-600">
+                    <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <span class="sr-only">Search</span>
+                  </button>
+              </div>
+              <ul v-if="currentRefinement" class="mt-5 border border-gray-300 rounded-md shadow-md">
+                <li v-for="(index, indexId) in indices" :key="indexId">
+                  <h3 class="px-4 py-2 bg-gray-100 border-b border-gray-300 font-medium text-lg">{{ index.indexName }}</h3>
+                  <ul v-if="index.hits.length > 0">
+                    <li
+                      @click="viewProduct(hit.uid)"
+                      @mouseenter="hoveredItem = hitId"
+                      @mouseleave="hoveredItem = null"
+                      v-for="(hit, hitId) in index.hits"
+                      :key="hitId"
+                      class="px-4 py-2 border-b border-gray-300 hover:bg-gray-100 cursor-pointer"
+                    >
+                      <div class="flex items-center gap-2 justify-between">
+                        <!-- Add image here if needed -->
+                        <div>
+                          <ais-highlight attribute="productName" :hit="hit" class="text-blue-500 font-semibold text-lg" />
+                          <p class="text-gray-600">{{ hit.productShortDesc }}</p>
+                          <el-rate
+                            v-model="hit.productRating"
+                            disabled
+                            show-score
+                            text-color="#ff9900"
+                            score-template="{value}"
+                          />
+                        </div>
+                        <i v-show="hoveredItem === hitId" class="fa-solid fa-arrow-turn-down"></i>
+                      </div>
+                    </li>
+                  </ul>
+                  <p v-else class="px-4 py-2 text-gray-600">No results found.</p>
+                </li>
+              </ul>
+            </template>
+          </ais-autocomplete>
+          <!-- <div  class="flex justify-end items-center mt-5">
+            <ais-powered-by class="text-sm text-gray-500" />
+          </div> -->
+          </ais-instant-search>
+       </div>
+       <!-- <div @click="centerDialogVisible = true" class="relative"> -->
+        <!-- <div class="relative">
           <input
             class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 outline-none"
             placeholder="Search products"
@@ -40,7 +99,7 @@
               </svg>
               <span class="sr-only">Search</span>
             </button>
-        </div>       
+        </div>        -->
          <!-- <ul class="absolute top-10 z-50 flex flex-col mt-4 justify-center rounded-xl">
         <li @click="viewProduct(item.uid)" 
             v-show="searchQuery !== '' && searchQuery !== ' '" 
@@ -61,7 +120,7 @@
           <hr class="mt-6" :class="{'hidden': index === filteredProducts.length - 1}">
         </li>
        </ul> -->
-      </div>
+      <!-- </div> -->
       <div v-show="!isLoaded" class="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-28 mt-10">
          <div v-for="animation in skeleton" :key="index">
             <el-skeleton style="width: 300px" animated>
@@ -110,7 +169,7 @@
        
        <el-dialog v-model="centerDialogVisible" width="500px" center>
         <div>
-          <ais-instant-search :search-client="client" index-name="Products">
+          <!-- <ais-instant-search :search-client="client" index-name="Products">
   <ais-configure :hits-per-page.camel="5" />
   <ais-autocomplete>
     <template v-slot="{ currentRefinement, indices, refine }">
@@ -142,7 +201,7 @@
               class="px-4 py-2 border-b border-gray-300 hover:bg-gray-100 cursor-pointer"
             >
               <div class="flex items-center gap-2 justify-between">
-                <!-- Add image here if needed -->
+                
                 <div>
                   <ais-highlight attribute="productName" :hit="hit" class="text-blue-500 font-semibold text-lg" />
                   <p class="text-gray-600">{{ hit.productShortDesc }}</p>
@@ -166,7 +225,7 @@
   <div class="flex justify-end items-center mt-5">
     <ais-powered-by class="text-sm text-gray-500" />
   </div>
-</ais-instant-search>
+</ais-instant-search> -->
 
 
 
@@ -202,16 +261,16 @@ const centerDialogVisible = ref(false)
 const hoveredItem = ref(null)
 
 const productItem = ref([])
-const searchQuery = ref('')
-const filteredProducts = ref([])
+
 
 const client = algoliasearch('BJOGI50ZMG', '6ac84c16c1932221490f03d45fb5c11f');
 
-watchEffect(() => {
-  filteredProducts.value = productItem.value.filter(product => {
-    return product.productName.toLowerCase().includes(searchQuery.value.toLowerCase());
-  });
-});
+// watchEffect(() => {
+//   filteredProducts.value = productItem.value.filter(product => {
+//     return product.productName.toLowerCase().includes(searchQuery.value.toLowerCase());
+//   });
+// });
+
 
 const getProducts = async () => {
  
@@ -253,8 +312,7 @@ const addOrder = async () => {
 }
 
 onMounted(async () => {
-    await getProducts();
-
+    await getProducts()
     // setTimeout(() => {
     //     isLoaded.value = true
     // }, 1350)

@@ -101,9 +101,14 @@
                         </template>
                     </el-table-column>
                     <el-table-column prop="totalQty" label="Quantity" align="center" sortable min-width="120"/>
-                    <el-table-column label="Delivery Type" min-width="180">
+                    <el-table-column label="Delivery Type" min-width="120">
                     <template #default="scope">
                         <el-tag effect="plain" size="large" :type="tagType(scope.row.deliveryType)">{{ scope.row.deliveryType }}</el-tag>
+                    </template>
+                    </el-table-column>
+                    <el-table-column label="Progress" min-width="200">
+                    <template #default="scope">
+                        <el-progress :percentage="getProgress(scope.row)" :color="customColors" />
                     </template>
                     </el-table-column>
                     <el-table-column label="" width="150">
@@ -285,6 +290,16 @@ const review = ref('')
 const reviewStar = ref(null)
 const colors = ref(['#99A9BF', '#F7BA2A', '#FF9900']) 
 
+const customColors = [
+//   { color: '#67C23A', percentage: 50 },
+{ color: '#f56c6c', percentage: 20 },
+  { color: '#e6a23c', percentage: 40 },
+  { color: '#409EFF', percentage: 60 },
+  { color: '#1989fa', percentage: 80 },
+  { color: '#67C23A', percentage: 100 },
+
+]
+
 const windowSize = ref({
     width: window.innerWidth,
     height: window.innerHeight
@@ -302,26 +317,26 @@ const windowSize = ref({
 
 
 
-  const getStatus = (item, ref) => {
-    const pickupDate = new Date(item.pickupDate);
-    const pickupTime = item.pickupTime;
-    const pickupDateTime = new Date(`${pickupDate.toDateString()} ${pickupTime}`);
-    const currentDate = new Date();
+//   const getStatus = (item, ref) => {
+//     const pickupDate = new Date(item.pickupDate);
+//     const pickupTime = item.pickupTime;
+//     const pickupDateTime = new Date(`${pickupDate.toDateString()} ${pickupTime}`);
+//     const currentDate = new Date();
 
-    const timeDifference = currentDate - pickupDateTime
-    const hoursDifference = timeDifference / (1000 * 60 * 60);
+//     const timeDifference = currentDate - pickupDateTime
+//     const hoursDifference = timeDifference / (1000 * 60 * 60);
     
-    if (hoursDifference >= 1) {
-        updateDoc(ref, {
-            status: 'Completed'
-        })
-    } else if (hoursDifference > 0 && hoursDifference < 1) {
-        updateDoc(ref, {
-            status: 'In progress'
-        })
-    }
-    repairItems.value.push(item);
-}
+//     if (hoursDifference >= 1) {
+//         updateDoc(ref, {
+//             status: 'Completed'
+//         })
+//     } else if (hoursDifference > 0 && hoursDifference < 1) {
+//         updateDoc(ref, {
+//             status: 'In progress'
+//         })
+//     }
+//     repairItems.value.push(item);
+// }
 
 // const updateStatus = async (uid, hoursDifference) => {
 //     const usersRef = collection(db, 'users')
@@ -390,6 +405,33 @@ const getDeliveryFee = (fee) => {
     }
 }
 
+const getProgress = (item) => {
+  const today = new Date(); // Create a Date object for today
+  
+  const orderDate = new Date(item.orderDate); // Convert orderDate to a Date object
+  const pickupDate = new Date(item.pickupDate)
+
+  const timeDifference = today.getTime() - orderDate.getTime();
+  const daysDifference = Math.floor(timeDifference / (1000 * 3600 * 24));
+
+  if (today >= orderDate && item.deliveryType === 'Express') {
+    return 100;
+  } else if (daysDifference >= 2 && item.deliveryType === 'Standard') {
+    return 100;
+  }else if(daysDifference >= 1 && item.deliveryType === 'Next Day') {
+    return 100
+  }else if(today >= pickupDate && item.deliveryType === 'Pickup') {
+    return 100
+  }else if(today < pickupDate && item.deliveryType === 'Pickup') {
+    return 66
+  }
+  else {
+    return 50;
+  }
+};
+
+
+
 const submitReview = async (item) => {
     buyAgain.value = !buyAgain.value
     item.reviewed = true
@@ -398,7 +440,6 @@ const submitReview = async (item) => {
     const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach((doc) => {
-        const documentRef = doc.ref;
         // Use the document reference as needed
         updateDoc(doc.ref, {
             reviewed: true
