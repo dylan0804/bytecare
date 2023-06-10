@@ -1,8 +1,9 @@
 <template>
     <div class="container mx-auto p-6 py-20">
-        <div class="flex">
+        <ProfileBanner />
+        <!-- <div class="flex">
             <h1 class="text-2xl">My profile</h1>
-        </div>
+        </div> -->
         <el-divider />
         <!-- <div class=" bg-white border-gray-300 rounded-lg">
             <el-tabs type="border-card">
@@ -79,9 +80,9 @@
             </div>
 
             <div v-show="currentTab === '2'" class="mt-5">
-                <el-table :data="store.state.orderHistory" stripe style="width: 100%">
-                    <el-table-column type="index" width="50" />
-                    <el-table-column sortable prop="orderDate" label="Date" width="180">
+                <el-table :data="filterTableData" stripe style="width: 100%">
+                    <el-table-column type="index" />
+                    <el-table-column sortable prop="orderDate" label="Date" width="150">
                         <template #default="scope">
                             <div class="flex items-center gap-2">
                                 <i class="fa-regular fa-clock"></i>
@@ -89,13 +90,13 @@
                             </div>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="productName" label="Customer" width="220">
+                    <el-table-column prop="productName" label="Customer" width="160">
                         <template #default="scope">
                             <p class=" font-bold">{{ scope.row.firstName }} {{ scope.row.lastName }}</p>
                             <p class="">{{ scope.row.email }}</p>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="productPrice" label="Price" min-width="180">
+                    <el-table-column prop="productPrice" label="Price" min-width="150">
                         <template #default="scope">
                             <p>{{ getTotalPrice(scope.row.totalPrice).toLocaleString('en-US', { style: 'currency', currency: 'IDR' }) }}</p>
                         </template>
@@ -106,12 +107,21 @@
                         <el-tag effect="plain" size="large" :type="tagType(scope.row.deliveryType)">{{ scope.row.deliveryType }}</el-tag>
                     </template>
                     </el-table-column>
-                    <el-table-column label="Progress" min-width="200">
+                    <el-table-column label="Progress" min-width="180">
                     <template #default="scope">
                         <el-progress :percentage="getProgress(scope.row)" :color="customColors" />
                     </template>
                     </el-table-column>
-                    <el-table-column label="" width="150">
+                    <el-table-column label="" width="300">
+                    <template #header>
+                        <div>
+                            <el-input v-model="search" size="default" placeholder="Search">
+                                <template #prepend>
+                                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                                </template>
+                            </el-input>
+                        </div>
+                    </template>
                     <template #default="scope">
                         <el-button class="bg-[#409EFF] text-white" size="large" @click="openModal(scope.row)">Details</el-button>
                     </template>
@@ -146,7 +156,7 @@
                 <div class="flex gap-8">
                     
                             <div v-show="!buyAgain" class="h-[400px] w-[200px]">
-                                <el-steps direction="vertical" :active="2" align-center >
+                                <el-steps direction="vertical" :active="3" align-center >
                                 <el-step title="Order placed" :description="new Date(selectedOrder[0].orderDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })"/>
                                 <el-step title="Processing"  :description="new Date(selectedOrder[0].orderDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })" />
                                 <el-step v-if="selectedOrder[0].deliveryType !== 'Pickup'" title="Shipped" :description="getShippingDate(selectedOrder[0].orderDate, selectedOrder[0].deliveryType)" />
@@ -268,15 +278,16 @@
 </template>
 
 <script setup>
+import ProfileBanner from '../components/ProfileBanner.vue'
 import firebase from '../firebase/firebaseInit'
 import db from '../firebase/firebaseInit';
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 import { ref } from 'vue';
 import { useStore } from 'vuex';
 import { collection, getDocs, updateDoc, query, where } from '@firebase/firestore';
 
 
-const repairItems = ref([]);
+// const repairItems = ref([]);
 const selectedItem = ref([])
 const selectedOrder = ref([])
 const store = useStore();
@@ -288,6 +299,7 @@ const orderModal = ref(false)
 const buyAgain = ref(false)
 const review = ref('')
 const reviewStar = ref(null)
+const search = ref('')
 const colors = ref(['#99A9BF', '#F7BA2A', '#FF9900']) 
 
 const customColors = [
@@ -356,6 +368,16 @@ const windowSize = ref({
 //             }
 //     });
 // }
+
+const filterTableData = computed(() =>
+  store.state.orderHistory.filter(
+    (data) =>
+      !search.value ||
+      data.firstName.toLowerCase().includes(search.value.toLowerCase()) ||
+      data.lastName.toLowerCase().includes(search.value.toLowerCase()) ||
+      data.email.toLowerCase().includes(search.value.toLowerCase()) 
+  )
+)
 
 onMounted(async () => {
     if (!store.state.repairHistoryFetched && !store.state.orderHistoryFetched) {

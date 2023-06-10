@@ -35,6 +35,9 @@ export default createStore({
     operatingSystem: '',
     problem: '',
 
+    completedRepairs: 0,
+    ongoingRepairs: 0,
+    completedOrdersCountFetched: false,
     repairHistory: [],
     orderHistory: [],
     repairHistoryFetched: false,
@@ -42,6 +45,8 @@ export default createStore({
 
     //shop
     shopItems: [],
+    completedOrders: 0,
+    ongoingOrders: 0,
     shopItemsFetched: false,
   },
   getters: {
@@ -97,6 +102,18 @@ export default createStore({
     CLEAR_REPAIR_HISTORY(state) {
       state.repairHistory = [];
     },
+    CLEAR_COMPLETED_REPAIRS(state) {
+      state.completedRepairs = 0;
+    },
+    CLEAR_ONGOING_REPAIRS(state) {
+      state.ongoingRepairs = 0;
+    },
+    CLEAR_COMPLETED_ORDERS(state) {
+      state.completedOrders = 0;
+    },
+    CLEAR_ONGOING_ORDERS(state) {
+      state.ongoingOrders = 0;
+    },
     SET_CART_ITEMS(state, items) {
       state.orderHistory = items;
     },
@@ -109,6 +126,33 @@ export default createStore({
     },
     SET_SHOP_ITEMS_FETCHED(state, value) {
       state.shopItemsFetched = value;
+    },
+    INCREMENT_COMPLETED_REPAIRS(state) {
+      state.completedRepairs++;
+    },
+    SET_COMPLETED_REPAIRS(state, count) {
+      state.completedRepairs = count;
+    },
+    SET_COMPLETED_ORDERS_COUNT_FETCHED(state, value) {
+      state.completedOrdersCountFetched = value;
+    },
+    INCREMENT_ONGOING_REPAIRS(state) {
+      state.ongoingRepairs++;
+    },
+    DECREMENT_ONGOING_REPAIRS(state) {
+      state.ongoingRepairs--;
+    },
+    INCREMENT_ONGOING_ORDERS(state) {
+      state.ongoingOrders++;
+    },
+    INCREMENT_COMPLETED_ORDERS(state) {
+      state.completedOrders++;
+    },
+    DECREMENT_ONGOING_ORDERS(state) {
+      state.ongoingOrders--;
+    },
+    DECREMENT_COMPLETED_ORDERS(state) {
+      state.ongoingOrders--;
     },
   },
   actions: {
@@ -128,6 +172,8 @@ export default createStore({
 
     async getRepairOrder({commit}) {
       commit('CLEAR_REPAIR_HISTORY');
+      commit('CLEAR_COMPLETED_REPAIRS')
+      commit('CLEAR_ONGOING_REPAIRS')
 
       const repairRef = collection(db, 'users', localStorage.getItem('profileId'), 'repair');
       const q = query(repairRef, orderBy('status', 'desc'));
@@ -146,11 +192,19 @@ export default createStore({
   
       const timeDifference = currentDate - pickupDateTime
       const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+      if(item.status === 'Waiting for pick up' || item.status === 'In progress') {
+        commit('INCREMENT_ONGOING_REPAIRS')
+      }
       
       if (hoursDifference >= 1) {
+          if(item.status === 'In progress') {
+            commit('DECREMENT_ONGOING_REPAIRS')
+          }
           updateDoc(ref, {
               status: 'Completed'
           })
+          commit('INCREMENT_COMPLETED_REPAIRS');
       } else if (hoursDifference > 0 && hoursDifference < 1) {
           updateDoc(ref, {
               status: 'In progress'
@@ -169,18 +223,44 @@ export default createStore({
   },
 
   async getOrders({ commit }) {
+    commit('CLEAR_ONGOING_ORDERS')
+    commit('CLEAR_COMPLETED_ORDERS')
+
     const ordersRef = collection(db, 'orders');
     const cartRef = query(ordersRef, where('buyerUid', '==', localStorage.getItem('profileId')));
     const querySnapshot = await getDocs(cartRef);
 
     let temp = [];
-    querySnapshot.forEach((doc) => {
+    querySnapshot.forEach(async (doc) => {
+      // this.dispatch('updateStatus', { item: doc.data(), ref: doc.ref })
       temp.push(doc.data());
+      commit('INCREMENT_ONGOING_ORDERS')
     });
 
     commit('SET_CART_ITEMS', temp);
     commit('SET_ORDER_HISTORY_FETCHED', true)
+
   },
+
+  // async updateStatus({}, { item, ref }) {
+  //   const orderDate = new Date(item.orderDate)
+  //   let deliveryDate = new Date()
+  //   const currentDate = new Date()
+
+  //   if(item.deliveryType === 'Next Day') {
+  //     deliveryDate.setDate(orderDate.getDate() + 1)
+  //   }else if(item.deliveryType === 'Standard') {
+  //     deliveryDate.setDate(orderDate.getDate() + 2)
+  //   }
+
+  //   if(currentDate >= deliveryDate) {
+  //     updateDoc(ref, {
+  //       status: 'Delivered',
+  //     });
+  //   }
+
+  //   console.log(orderDate)
+  // },
 
    async getProducts ({ commit }) {
     // Check if the products array is already populated in the store

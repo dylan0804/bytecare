@@ -50,6 +50,7 @@
               </div>
               <ul v-if="currentRefinement" class="mt-5 border border-gray-300 rounded-md shadow-md">
                 <li v-for="(index, indexId) in indices" :key="indexId">
+                 
                   <h3 class="px-4 py-2 bg-gray-100 border-b border-gray-300 font-medium text-lg">{{ index.indexName }}</h3>
                   <ul v-if="index.hits.length > 0">
                     <li
@@ -58,7 +59,7 @@
                       @mouseleave="hoveredItem = null"
                       v-for="(hit, hitId) in index.hits"
                       :key="hitId"
-                      class="px-4 py-2 border-b border-gray-300 hover:bg-gray-100 cursor-pointer"
+                      class="px-4 py-2 border-b border-gray-300 hover:bg-gray-200 cursor-pointer"
                     >
                       <div class="flex items-center gap-2 justify-between">
                         <!-- Add image here if needed -->
@@ -122,7 +123,7 @@
        </ul> -->
       <!-- </div> -->
       <div v-show="!isLoaded" class="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-28 mt-10">
-         <div v-for="animation in skeleton" :key="index">
+         <div v-for="(animation, index) in skeleton" :key="index">
             <el-skeleton style="width: 300px" animated>
             <template #template>
               <el-skeleton-item variant="image" style="width: 300px; height: 300px"  />
@@ -157,7 +158,7 @@
                 <p class=" text-sm text-gray-600 flex-1">{{ item.productShortDesc }}</p>
                 <p>IDR {{ item.productPrice }}</p>
                 <el-rate
-                    v-model="item.productRating"
+                    v-model.number="item.productRating"
                     disabled
                     show-score
                     text-color="#ff9900"
@@ -259,6 +260,7 @@ const skeleton = ref(4)
 const isLoaded = ref(false)
 const centerDialogVisible = ref(false)
 const hoveredItem = ref(null)
+const imageUrls = {}
 
 const productItem = ref([])
 
@@ -282,6 +284,7 @@ const getProducts = async () => {
       const imageRef = storageRef(storage, item.data().productImg);
       const url = await getDownloadURL(imageRef);
       itemData.productImg = url;
+      imageUrls[item.id] = url;
       productItem.value.push(itemData)
     });
   } catch (err) {
@@ -294,22 +297,22 @@ const viewProduct = (uid) => {
   router.push({ name: 'Product', params: {uid: uid} })
 }
 
-const addOrder = async () => {
-    try {
-        await addDoc(collection(db, "products"), {
-            uid: uuidv4(),
-            productName: productName.value,
-            productDesc: productDesc.value,
-            productShortDesc: productShortDesc.value,
-            productStock: productStock.value,
-            productPrice: productPrice.value,
-            productRating: productRating.value,
-            productImg: imgUrl.value
-        })
-    } catch (err) {
-        console.error(err)
-    }
-}
+// const addOrder = async () => {
+//     try {
+//         await addDoc(collection(db, "products"), {
+//             uid: uuidv4(),
+//             productName: productName.value,
+//             productDesc: productDesc.value,
+//             productShortDesc: productShortDesc.value,
+//             productStock: productStock.value,
+//             productPrice: productPrice.value,
+//             productRating: productRating.value,
+//             productImg: imgUrl.value
+//         })
+//     } catch (err) {
+//         console.error(err)
+//     }
+// }
 
 onMounted(async () => {
     await getProducts()
