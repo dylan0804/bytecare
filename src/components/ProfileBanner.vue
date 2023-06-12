@@ -1,13 +1,13 @@
 <template>
-    <div class="profile-banner flex flex-col items-start p-4 sm:p-6 md:px-8 lg:items-center gap-10 lg:flex-row md:h-[260px] lg:h-[150px]">
-        <div class="flex justify-start">
+    <div class="profile-banner flex flex-col items-start p-4 md:px-6 lg:items-center gap-10 lg:flex-row md:h-[260px] lg:h-[150px]">
+        <div class="flex justify-start mt-4 lg:mt-0">
             <img src="../assets/img/nav_profile.svg" class="w-[80px] h-auto items-center" alt="">
             <div class="md:ml-8 ml-3 flex flex-col justify-evenly text-lg">
                 <p>Hello, <strong class=" font-semibold">{{ firstName }}</strong> </p>
                 <p>{{ email }}</p>
             </div>
         </div>
-        <div class="md:ml-auto flex flex-col gap-2 md:flex-row bg-white text-black items-center p-4 rounded-lg">
+        <div class="lg:ml-auto flex flex-col gap-2 md:flex-row bg-white text-black items-center p-4 rounded-lg">
             <div class="flex gap-2 items-center">
                 <div>
                 <p class=" text-gray-500">Completed Repairs</p>
