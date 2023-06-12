@@ -1,5 +1,5 @@
 <template>
-    <div class="profile-banner flex flex-col items-start p-4 sm:p-6 lg:px-8 lg:items-center gap-6 lg:flex-row h-[250px] lg:h-[150px]">
+    <div class="profile-banner flex flex-col items-start p-4 sm:p-6 md:px-8 lg:items-center gap-10 lg:flex-row md:h-[260px] lg:h-[150px]">
         <div class="flex justify-start">
             <img src="../assets/img/nav_profile.svg" class="w-[80px] h-auto items-center" alt="">
             <div class="md:ml-8 ml-3 flex flex-col justify-evenly text-lg">
@@ -7,7 +7,7 @@
                 <p>{{ email }}</p>
             </div>
         </div>
-        <div class="lg:ml-auto flex gap-2 bg-white text-black items-center p-4 rounded-lg">
+        <div class="md:ml-auto flex flex-col gap-2 md:flex-row bg-white text-black items-center p-4 rounded-lg">
             <div class="flex gap-2 items-center">
                 <div>
                 <p class=" text-gray-500">Completed Repairs</p>
@@ -19,7 +19,7 @@
                     <p>{{ store.state.ongoingRepairs || '-' }}</p>
                 </div>
             </div>
-            <el-divider direction="vertical" class="h-[60px]" />
+            <el-divider direction="vertical" class="h-[60px] hidden md:block" />
             <hr class="bg-black" />
             <div class="flex gap-2 items-center">
                 <div>
