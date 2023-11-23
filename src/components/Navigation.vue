@@ -23,9 +23,9 @@
                     <i class="fa-solid fa-bars flex ml-auto text-3xl outline-none cursor-pointer md:hidden"></i>
                     <template #dropdown>
                         <el-dropdown-menu class="w-[150px] font-medium">
-                            <el-dropdown-item>Repair</el-dropdown-item>
-                            <el-dropdown-item>Shop</el-dropdown-item>
-                            <el-dropdown-item>Wishlist</el-dropdown-item>
+                            <el-dropdown-item @click="router.push({ name: 'Repair' })">Repair</el-dropdown-item>
+                            <el-dropdown-item @click="router.push({ name: 'Shop' })">Shop</el-dropdown-item>
+                            <el-dropdown-item @click="router.push({ name: 'Wishlist' })">Wishlist</el-dropdown-item>
                             <el-dropdown-item divided>
                                 <router-link :to="{ name: 'Register' }">Sign in / Register</router-link>
                             </el-dropdown-item>

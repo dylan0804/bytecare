@@ -133,14 +133,17 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  document.title = `${to.meta.title} | Bytecare`
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  const userLoggedIn = localStorage.getItem("userLoggedIn");
-  if (requiresAuth && userLoggedIn === 'false') {
-    next('/register')
+  document.title = `${to.meta.title || 'Default Title'} | Bytecare`;
+
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+
+  const userLoggedIn = JSON.parse(localStorage.getItem("userLoggedIn")); // Assuming a boolean value is stored
+
+  if (requiresAuth && !userLoggedIn) {
+    next('/register');
   } else {
-    next()
+    next();
   }
-})
+});
 
 export default router
