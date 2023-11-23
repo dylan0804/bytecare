@@ -394,7 +394,6 @@ onMounted(async () => {
     setTimeout(() => {
       isLoaded.value = true;
     }, 2000);
-    // Handle any errors that occurred during the asynchronous operations
 });
 
 const openDialog = (item) => {

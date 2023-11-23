@@ -58,7 +58,6 @@ const isLoggedIn = ref(null)
 
 onMounted(() => {
     const userLoggedIn = localStorage.getItem("userLoggedIn");
-    
 }),
 
 watchEffect(() => {

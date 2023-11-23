@@ -1,6 +1,6 @@
 <template>
     <div class="shadow-md bg-white">
-        <nav class="relative container mx-auto px-6 py-4">
+        <nav class="relative mx-auto container p-4">
            <div class="flex items-center justify-between">
                <div>
                    <router-link :to="{ name: 'Home' }" class="text-3xl">Bytecare</router-link>
