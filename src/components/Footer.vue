@@ -10,8 +10,13 @@
                         <router-link :to="{ name: 'Cart' }">My cart</router-link>
                         <router-link :to="{ name: 'Wishlist' }">My wishlist</router-link>
                     </div>
-                    <div>
-                        <h2 class="text-2xl font-medium">Contact Us</h2>
+                    <div class="flex flex-col space-y-6 text-darkGrayishBlue">
+                        <h2 class="text-2xl font-medium text-black">Contact Us</h2> 
+                        <a class=" cursor-pointer" href="https://forms.gle/TNQZnUWrBCtUjHGw5"
+                        target="_blank"
+                            >  
+                            Feedback
+                        </a>
                     </div>
                 </div>
             </div>

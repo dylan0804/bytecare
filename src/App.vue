@@ -7,7 +7,7 @@
   <el-dialog
     v-model="centerDialogVisible"
     title="Share your thoughts"
-    width="350px"
+    width="320px"
     align-center
     center
   >
@@ -20,6 +20,7 @@
       <div class="w-[90%] text-center">
         <div class="p-2 rounded-md border-solid border-2 truncate">
           <a class=" text-sky-600" href="https://forms.gle/TNQZnUWrBCtUjHGw5"
+          target="_blank"
           >  
           https://forms.gle/TNQZnUWrBCtUjHGw5
         </a>
